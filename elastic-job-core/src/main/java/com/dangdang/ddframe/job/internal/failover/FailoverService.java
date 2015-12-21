@@ -24,8 +24,8 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 import com.dangdang.ddframe.job.api.JobConfiguration;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
+import com.dangdang.ddframe.job.internal.env.JobNodeService;
+import com.dangdang.ddframe.job.internal.env.LocalJobNodeService;
 import com.dangdang.ddframe.job.internal.execution.ExecutionNode;
 import com.dangdang.ddframe.job.internal.schedule.JobRegistry;
 import com.dangdang.ddframe.job.internal.server.ServerService;
@@ -42,7 +42,7 @@ import com.dangdang.ddframe.reg.base.CoordinatorRegistryCenter;
 @Slf4j
 public final class FailoverService {
     
-    private final LocalHostService localHostService = new RealLocalHostService();
+    private final JobNodeService jobNodeService;
     
     private final JobConfiguration jobConfiguration;
     
@@ -54,6 +54,7 @@ public final class FailoverService {
     
     public FailoverService(final CoordinatorRegistryCenter coordinatorRegistryCenter, final JobConfiguration jobConfiguration) {
         this.jobConfiguration = jobConfiguration;
+        jobNodeService = new LocalJobNodeService(coordinatorRegistryCenter);
         jobNodeStorage = new JobNodeStorage(coordinatorRegistryCenter, jobConfiguration);
         serverService = new ServerService(coordinatorRegistryCenter, jobConfiguration);
         shardingService = new ShardingService(coordinatorRegistryCenter, jobConfiguration);
@@ -90,7 +91,7 @@ public final class FailoverService {
                 }
                 int crashedItem = Integer.parseInt(jobNodeStorage.getJobNodeChildrenKeys(FailoverNode.ITEMS_ROOT).get(0));
                 log.debug("Elastic job: failover job begin, crashed item:{}.", crashedItem);
-                jobNodeStorage.fillEphemeralJobNode(FailoverNode.getExecutionFailoverNode(crashedItem), localHostService.getIp());
+                jobNodeStorage.fillEphemeralJobNode(FailoverNode.getExecutionFailoverNode(crashedItem), jobNodeService.getNodeName());
                 jobNodeStorage.removeJobNodeIfExisted(FailoverNode.getItemsNode(crashedItem));
                 JobRegistry.getInstance().getJob(jobConfiguration.getJobName()).triggerJob();
             }
@@ -120,7 +121,7 @@ public final class FailoverService {
     public List<Integer> getLocalHostFailoverItems() {
         List<String> items = jobNodeStorage.getJobNodeChildrenKeys(ExecutionNode.ROOT);
         List<Integer> result = new ArrayList<>(items.size());
-        String ip = localHostService.getIp();
+        String ip = jobNodeService.getNodeName();
         for (String each : items) {
             int item = Integer.parseInt(each);
             String node = FailoverNode.getExecutionFailoverNode(item);

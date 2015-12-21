@@ -18,6 +18,7 @@
 package com.dangdang.ddframe.job.internal.statistics;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
@@ -26,12 +27,8 @@ import org.junit.Test;
 import org.quartz.JobExecutionException;
 
 import com.dangdang.ddframe.job.internal.AbstractBaseJobTest;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
 
 public final class ProcessCountJobTest extends AbstractBaseJobTest {
-    
-    private final LocalHostService localHostService = new RealLocalHostService();
     
     private final ProcessCountJob processCountJob = new ProcessCountJob(getRegistryCenter(), getJobConfig());
     
@@ -46,14 +43,14 @@ public final class ProcessCountJobTest extends AbstractBaseJobTest {
     @Test
     public void assertRun() throws JobExecutionException {
         processCountJob.run();
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/processSuccessCount"), is("1"));
-        assertFalse(getRegistryCenter().isExisted("/otherTestJob/servers/" + localHostService.getIp() + "/processSuccessCount"));
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/processFailureCount"), is("1"));
-        assertFalse(getRegistryCenter().isExisted("/otherTestJob/servers/" + localHostService.getIp() + "/processFailureCount"));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/processSuccessCount"), is("1"));
+        assertFalse(getRegistryCenter().isExisted("/otherTestJob/servers/" + jobNodeService.getNodeName() + "/processSuccessCount"));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/processFailureCount"), is("1"));
+        assertFalse(getRegistryCenter().isExisted("/otherTestJob/servers/" + jobNodeService.getNodeName() + "/processFailureCount"));
         processCountJob.run();
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/processSuccessCount"), is("0"));
-        assertFalse(getRegistryCenter().isExisted("/otherTestJob/servers/" + localHostService.getIp() + "/processSuccessCount"));
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/processFailureCount"), is("0"));
-        assertFalse(getRegistryCenter().isExisted("/otherTestJob/servers/" + localHostService.getIp() + "/processFailureCount"));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/processSuccessCount"), not("0"));
+        assertFalse(getRegistryCenter().isExisted("/otherTestJob/servers/" + jobNodeService.getNodeName() + "/processSuccessCount"));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/processFailureCount"), not("0"));
+        assertFalse(getRegistryCenter().isExisted("/otherTestJob/servers/" + jobNodeService.getNodeName() + "/processFailureCount"));
     }
 }

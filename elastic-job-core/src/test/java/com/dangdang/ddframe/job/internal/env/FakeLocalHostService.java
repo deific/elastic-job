@@ -22,7 +22,7 @@ package com.dangdang.ddframe.job.internal.env;
  * 
  * @author zhangliang
  */
-public final class FakeLocalHostService implements LocalHostService {
+public final class FakeLocalHostService implements JobNodeService {
     
     private final String localHostIp;
     
@@ -31,7 +31,7 @@ public final class FakeLocalHostService implements LocalHostService {
     }
     
     @Override
-    public String getIp() {
+    public String getNodeName() {
         return localHostIp;
     }
     

@@ -25,33 +25,50 @@ import lombok.Setter;
  * 
  * @author zhangliang
  */
-@Getter
-@Setter
+
 public abstract class AbstractJobExecutionShardingContext {
     
     /**
      * 作业名称.
      */
+	@Getter
+	@Setter
     private String jobName;
     
     /**
      * 分片总数.
      */
+	@Getter
+	@Setter
     private int shardingTotalCount;
     
     /**
      * 作业自定义参数.
      * 可以配置多个相同的作业, 但是用不同的参数作为不同的调度实例.
      */
+	@Getter
+	@Setter
     private String jobParameter;
+	
+	/**
+     * 作业自定义参数.
+     * 可以配置多个相同的作业, 但是用不同的参数作为不同的调度实例.
+     */
+	@Getter
+	@Setter
+    private String fetchDataOffset;
     
     /**
      * 监控作业执行时状态.
      */
+	@Getter
+	@Setter
     private boolean monitorExecution;
     
     /**
      * 每次抓取的数据量.
      */
+	@Getter
+	@Setter
     private int fetchDataCount;
 }

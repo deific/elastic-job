@@ -42,16 +42,24 @@ import com.dangdang.ddframe.job.internal.sharding.strategy.JobShardingStrategyOp
  */
 public final class AverageAllocationJobShardingStrategy implements JobShardingStrategy {
     
+	
     @Override
     public Map<String, List<Integer>> sharding(final List<String> serversList, final JobShardingStrategyOption option) {
         if (serversList.isEmpty()) {
             return Collections.emptyMap();
         }
+        
         Map<String, List<Integer>> result = shardingAliquot(serversList, option.getShardingTotalCount());
         addAliquant(serversList, option.getShardingTotalCount(), result);
         return result;
     }
     
+    /**
+     * 
+     * @param serversList
+     * @param shardingTotalCount
+     * @return
+     */
     private Map<String, List<Integer>> shardingAliquot(final List<String> serversList, final int shardingTotalCount) {
         Map<String, List<Integer>> result = new LinkedHashMap<>(serversList.size());
         int itemCountPerSharding = shardingTotalCount / serversList.size();

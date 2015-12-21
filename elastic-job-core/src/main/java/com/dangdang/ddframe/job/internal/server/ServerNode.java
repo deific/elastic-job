@@ -17,8 +17,8 @@
 
 package com.dangdang.ddframe.job.internal.server;
 
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
+import com.dangdang.ddframe.job.internal.env.JobNodeService;
+import com.dangdang.ddframe.job.internal.env.LocalJobNodeService;
 import com.dangdang.ddframe.job.internal.storage.JobNodePath;
 
 /**
@@ -49,11 +49,12 @@ public final class ServerNode {
     
     static final String STOPED = ROOT + "/%s/stoped";
     
-    private final LocalHostService localHostService = new RealLocalHostService();
+    private final JobNodeService jobNodeService;
     
     private final JobNodePath jobNodePath;
     
-    public ServerNode(final String jobName) {
+    public ServerNode(JobNodeService jobNodeService, final String jobName) {
+    	this.jobNodeService = jobNodeService;
         jobNodePath = new JobNodePath(jobName);
     }
     
@@ -107,6 +108,6 @@ public final class ServerNode {
      * @return 是否为作业停止状态路径.
      */
     public boolean isJobStopedPath(final String path) {
-        return path.startsWith(jobNodePath.getFullPath(String.format(ServerNode.STOPED, localHostService.getIp())));
+        return path.startsWith(jobNodePath.getFullPath(String.format(ServerNode.STOPED, jobNodeService.getNodeName())));
     }
 }

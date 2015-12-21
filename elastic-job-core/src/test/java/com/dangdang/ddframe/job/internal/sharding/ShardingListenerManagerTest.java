@@ -24,14 +24,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.dangdang.ddframe.job.internal.AbstractBaseJobTest;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
 import com.dangdang.ddframe.job.internal.server.ServerStatus;
 import com.dangdang.ddframe.test.WaitingUtils;
 
 public final class ShardingListenerManagerTest extends AbstractBaseJobTest {
     
-    private final LocalHostService localHostService = new RealLocalHostService();
     
     private final ShardingListenerManager shardingListenerManager = new ShardingListenerManager(getRegistryCenter(), getJobConfig());
     
@@ -54,7 +51,7 @@ public final class ShardingListenerManagerTest extends AbstractBaseJobTest {
     @Test
     public void assertListenServersChangedWhenServerIsCrashed() {
         assertFalse(getRegistryCenter().isExisted("/testJob/leader/sharding/necessary"));
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/status", ServerStatus.READY.name());
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/status", ServerStatus.READY.name());
         WaitingUtils.waitingShortTime();
         assertTrue(getRegistryCenter().isExisted("/testJob/leader/sharding/necessary"));
     }
@@ -62,10 +59,10 @@ public final class ShardingListenerManagerTest extends AbstractBaseJobTest {
     @Test
     public void assertListenServersChangedWhenServerIsNotCrashed() {
         assertFalse(getRegistryCenter().isExisted("/testJob/leader/sharding/necessary"));
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/status", ServerStatus.READY.name());
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/status", ServerStatus.READY.name());
         WaitingUtils.waitingShortTime();
         getRegistryCenter().remove("/testJob/leader/sharding/necessary");
-        getRegistryCenter().update("/testJob/servers/" + localHostService.getIp() + "/status", ServerStatus.RUNNING.name());
+        getRegistryCenter().update("/testJob/servers/" + jobNodeService.getNodeName() + "/status", ServerStatus.RUNNING.name());
         WaitingUtils.waitingShortTime();
         assertFalse(getRegistryCenter().isExisted("/testJob/leader/sharding/necessary"));
     }
@@ -73,7 +70,7 @@ public final class ShardingListenerManagerTest extends AbstractBaseJobTest {
     @Test
     public void assertListenServersChangedWhenServerIsDisabled() {
         assertFalse(getRegistryCenter().isExisted("/testJob/leader/sharding/necessary"));
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/disabled", "");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/disabled", "");
         WaitingUtils.waitingShortTime();
         assertTrue(getRegistryCenter().isExisted("/testJob/leader/sharding/necessary"));
     }

@@ -46,6 +46,8 @@ public final class ConfigurationNode {
     
     static final String FETCH_DATA_COUNT = ROOT + "/fetchDataCount";
     
+    static final String FETCHDATAOFFSET = ROOT + "/fetchDataOffset";
+    
     static final String MAX_TIME_DIFF_SECONDS = ROOT + "/maxTimeDiffSeconds";
     
     static final String FAILOVER = ROOT + "/failover";

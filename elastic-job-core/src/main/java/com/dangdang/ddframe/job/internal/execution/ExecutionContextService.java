@@ -86,6 +86,8 @@ public final class ExecutionContextService {
         result.setJobParameter(configService.getJobParameter());
         result.setMonitorExecution(isMonitorExecution);
         result.setFetchDataCount(configService.getFetchDataCount());
+        result.setFetchDataOffset(configService.getJobConfiguration().getFetchDataOffset());
+        
         if (result.getShardingItems().isEmpty()) {
             return result;
         }

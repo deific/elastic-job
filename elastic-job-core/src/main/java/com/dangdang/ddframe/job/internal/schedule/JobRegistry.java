@@ -24,6 +24,7 @@ import com.dangdang.ddframe.job.api.JobScheduler;
 
 /**
  * 作业注册表.
+ * 管理所有作业的调度器
  * 
  * @author zhangliang
  */

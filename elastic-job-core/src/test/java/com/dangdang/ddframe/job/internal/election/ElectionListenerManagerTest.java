@@ -26,13 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.dangdang.ddframe.job.internal.AbstractBaseJobTest;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
 import com.dangdang.ddframe.test.WaitingUtils;
 
 public final class ElectionListenerManagerTest extends AbstractBaseJobTest {
     
-    private final LocalHostService localHostService = new RealLocalHostService();
     
     private final ElectionListenerManager electionListenerManager = new ElectionListenerManager(getRegistryCenter(), getJobConfig());
     
@@ -48,7 +45,7 @@ public final class ElectionListenerManagerTest extends AbstractBaseJobTest {
         WaitingUtils.waitingShortTime();
         getRegistryCenter().remove("/testJob/leader/election");
         WaitingUtils.waitingShortTime();
-        assertThat(getRegistryCenter().get("/testJob/leader/election/host"), is(localHostService.getIp()));
+        assertThat(getRegistryCenter().get("/testJob/leader/election/host"), is(jobNodeService.getNodeName()));
         assertTrue(getRegistryCenter().isExisted("/testJob/leader/sharding/necessary"));
     }
 }

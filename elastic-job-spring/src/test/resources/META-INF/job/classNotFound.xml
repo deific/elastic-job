@@ -11,5 +11,8 @@
                         http://www.dangdang.com/schema/ddframe/job/job.xsd 
                         ">
     <reg:zookeeper id="regCenter" serverLists="localhost:3181" namespace="dd-job" baseSleepTimeMilliseconds="1000" maxSleepTimeMilliseconds="3000" maxRetries="3" />
-    <job:bean id="jobClassNotFound" class="jobClassNotFoundJobBean" regCenter="regCenter" cron="0/1 * * * * ?" shardingTotalCount="3" />
+    <job:bean id="jobClassNotFound" class="jobClassNotFoundJobBean" regCenter="regCenter" cron="0/1 * * * * ?" shardingTotalCount="3" 
+    jobDataProcessConfig="jobClassNotFoundJobDataProcessConfig" fetchDataOffset="90"/>
+    <bean id="jobClassNotFoundJobDataProcessConfig" class="com.dangdang.ddframe.job.api.DefaultDataProcessConfig">
+	</bean>
 </beans>

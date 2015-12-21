@@ -74,6 +74,7 @@ public final class JobExecutionMultipleShardingContext extends AbstractJobExecut
         result.setShardingItem(item);
         result.setShardingItemParameter(shardingItemParameters.get(item));
         result.setOffset(offsets.get(item));
+        
         return result;
     }
     

@@ -58,4 +58,5 @@ public final class StreamingSequenceDataFlowElasticJob extends AbstractSequenceD
     public static void reset() {
         processedData.clear();
     }
+
 }

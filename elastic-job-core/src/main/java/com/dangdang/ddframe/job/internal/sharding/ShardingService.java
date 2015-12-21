@@ -27,8 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 import com.dangdang.ddframe.job.api.JobConfiguration;
 import com.dangdang.ddframe.job.internal.config.ConfigurationService;
 import com.dangdang.ddframe.job.internal.election.LeaderElectionService;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
+import com.dangdang.ddframe.job.internal.env.JobNodeService;
+import com.dangdang.ddframe.job.internal.env.LocalJobNodeService;
 import com.dangdang.ddframe.job.internal.execution.ExecutionService;
 import com.dangdang.ddframe.job.internal.server.ServerService;
 import com.dangdang.ddframe.job.internal.sharding.strategy.JobShardingStrategy;
@@ -51,7 +51,7 @@ public final class ShardingService {
     
     private final JobNodeStorage jobNodeStorage;
     
-    private final LocalHostService localHostService = new RealLocalHostService();
+    private final JobNodeService jobNodeService;
     
     private final LeaderElectionService leaderElectionService;
     
@@ -63,6 +63,7 @@ public final class ShardingService {
     
     public ShardingService(final CoordinatorRegistryCenter coordinatorRegistryCenter, final JobConfiguration jobConfiguration) {
         jobName = jobConfiguration.getJobName();
+        jobNodeService = new LocalJobNodeService(coordinatorRegistryCenter);
         jobNodeStorage = new JobNodeStorage(coordinatorRegistryCenter, jobConfiguration);
         leaderElectionService = new LeaderElectionService(coordinatorRegistryCenter, jobConfiguration);
         configService = new ConfigurationService(coordinatorRegistryCenter, jobConfiguration);
@@ -142,7 +143,7 @@ public final class ShardingService {
      * @return 运行在本作业服务器的分片序列号
      */
     public List<Integer> getLocalHostShardingItems() {
-        String ip = localHostService.getIp();
+        String ip = jobNodeService.getNodeName();
         if (!jobNodeStorage.isJobNodeExisted(ShardingNode.getShardingNode(ip))) {
             return Collections.<Integer>emptyList();
         }

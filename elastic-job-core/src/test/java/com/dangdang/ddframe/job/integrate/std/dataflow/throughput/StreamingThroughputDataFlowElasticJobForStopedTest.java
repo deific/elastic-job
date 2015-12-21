@@ -45,8 +45,8 @@ public final class StreamingThroughputDataFlowElasticJobForStopedTest extends Ab
         while (!StreamingThroughputDataFlowElasticJob.isCompleted()) {
             WaitingUtils.waitingShortTime();
         }
-        getRegCenter().persist("/testJob/servers/" + getLocalHostService().getIp() + "/stoped", "");
+        getRegCenter().persist("/testJob/servers/" + getLocalHostService().getNodeName() + "/stoped", "");
         initJob();
-        assertFalse(getRegCenter().isExisted("/testJob/servers/" + getLocalHostService().getIp() + "/stoped"));
+        assertFalse(getRegCenter().isExisted("/testJob/servers/" + getLocalHostService().getNodeName() + "/stoped"));
     }
 }

@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.dangdang</groupId>
     <artifactId>elastic-job</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Elastic-Job - distributed scheduled job solution</description>
@@ -15,11 +15,12 @@
     </modules>
     
     <properties>
+    	<elastic.job.version>1.0.4</elastic.job.version>
         <java.version>1.7</java.version>
         <maven.version.range>[3.0.4,)</maven.version.range>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.locale>zh_CN</project.build.locale>
-        
+        <rep.ip>123.57.174.229</rep.ip>
         <lombok.version>1.16.4</lombok.version>
         <guava.version>18.0</guava.version>
         <commons-beanutils.version>1.9.2</commons-beanutils.version>
@@ -240,6 +241,7 @@
                         <argLine>-XX:-UseSplitVerifier</argLine>
                     </configuration>
                 </plugin>
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
@@ -460,8 +462,8 @@
     
     <repositories>
         <repository>
-            <id>henryyan-mavenrepo</id>
-            <url>https://maven.alfresco.com/nexus/content/groups/public/</url>
+            <id>myzh-mavenrepo</id>
+            <url>http://123.57.174.229:9091/content/groups/public/</url>
         </repository>
         <repository>
             <id>java-net</id>
@@ -485,55 +487,16 @@
         </repository>
     </repositories>
     
-    <url>https://github.com/dangdangdotcom/elastic-job</url>
-    <licenses> 
-        <license>
-            <name>Apache Licene 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    
-    <scm>
-        <connection>scm:git:https://github.com/terrymanu/dangdangdotcom/elastic-job.git</connection>
-        <developerConnection>scm:git:git@github.com:terrymanu/dangdangdotcom/elastic-job.git</developerConnection>
-        <url>https://github.com/terrymanu/dangdangdotcom/elastic-job</url>
-  </scm>
-    
-    <mailingLists>
-        <mailingList>
-            <name>ZhangLiang</name>
-            <post>zhangliang@dangdang.com</post>
-        </mailingList>
-         <mailingList>
-            <name>CaoHao</name>
-            <post>caohao@dangdang.com</post>
-        </mailingList>
-    </mailingLists>
-    
-    <developers>
-        <developer>
-            <id>zhangliang</id>
-            <name>ZhangLiang</name>
-            <email>zhangliang@dangdang.com</email>
-            <timezone>8</timezone>
-        </developer>
-        <developer>
-            <id>caohao</id>
-            <name>CaoHao</name>
-            <email>caohao@dangdang.com</email>
-            <timezone>8</timezone>
-        </developer>
-    </developers>
-    
     <distributionManagement>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>sonatype-nexus-releases</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-    </distributionManagement>
+		<repository>
+			<id>releases</id>
+			<name>Nexus Release Repository</name>
+			<url>http://${rep.ip}:9091/content/repositories/myzh/</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Nexus Snapshot Repository</name>
+			<url>http://${rep.ip}:9091/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>

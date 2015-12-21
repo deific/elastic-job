@@ -90,48 +90,92 @@ public class JobScheduler {
     
     private JobDetail jobDetail;
     
+    /**
+     * 创建作业调度器
+     * 初始化作业调度器环境
+     * @param coordinatorRegistryCenter
+     * @param jobConfiguration
+     */
     public JobScheduler(final CoordinatorRegistryCenter coordinatorRegistryCenter, final JobConfiguration jobConfiguration) {
         this.jobConfiguration = jobConfiguration;
+        // 初始化监听管理
         listenerManager = new ListenerManager(coordinatorRegistryCenter, jobConfiguration);
+        // 初始化配置服务，zookeeper节点数据服务
         configService = new ConfigurationService(coordinatorRegistryCenter, jobConfiguration);
+        // 初始化主节点选举服务
         leaderElectionService = new LeaderElectionService(coordinatorRegistryCenter, jobConfiguration);
+        // 初始化服务器服务
         serverService = new ServerService(coordinatorRegistryCenter, jobConfiguration);
+        // 初始化分片服务
         shardingService = new ShardingService(coordinatorRegistryCenter, jobConfiguration);
+        // 初始化作业运行时上下文服务
         executionContextService = new ExecutionContextService(coordinatorRegistryCenter, jobConfiguration);
+        // 执行作业的服务
         executionService = new ExecutionService(coordinatorRegistryCenter, jobConfiguration);
+        // 失效转移服务
         failoverService = new FailoverService(coordinatorRegistryCenter, jobConfiguration);
+        // 作业统计服务
         statisticsService = new StatisticsService(coordinatorRegistryCenter, jobConfiguration);
+        // 数据处理位置服务
         offsetService = new OffsetService(coordinatorRegistryCenter, jobConfiguration);
     }
     
     /**
-     * 初始化作业.
+     * 初始化作业，作业调度器启动入口.
      */
     public void init() {
         log.debug("Elastic job: job controller init, job name is: {}.", jobConfiguration.getJobName());
+        // 初始化环境
         registerElasticEnv();
+        // 创建作业数据
         jobDetail = createJobDetail();
         try {
+        	// 初始化调度器
             scheduler = initializeScheduler(jobDetail.getKey().toString());
+            // 启动任务
             scheduleJob(createTrigger(configService.getCron()));
         } catch (final SchedulerException ex) {
             throw new JobException(ex);
         }
+        
+        // 将该作业注册到注册表中
         JobRegistry.getInstance().addJob(jobConfiguration.getJobName(), this);
     }
     
+    /**
+     * 注册环境参数
+     */
     private void registerElasticEnv() {
+    	// 启动监听
         listenerManager.startAllListeners();
+        // 选举主节点
         leaderElectionService.leaderElection();
+        // 持久化分布式作业配置信息
         configService.persistJobConfiguration();
+        // 持久化服务器上线配置
         serverService.persistServerOnline();
+        // 清除作业停止标记
         serverService.clearJobStopedStatus();
+        // 启动统计作业
         statisticsService.startProcessCountJob();
+        // 设置重新分片标记
         shardingService.setReshardingFlag();
     }
     
+    /**
+     * 创建作业状态数据
+     * 传给scheduler一个JobDetail实例，创建JobDetail时，将要执行的job的类名传给了JobDetail，
+     * 所以scheduler就知道了要执行何种类型的job；每次当scheduler执行job时，在调用其execute(…)方法之前会创建该类的一个新的实例；
+     * 执行完毕，对该实例的引用就被丢弃了，实例会被垃圾回收；
+     * 这种执行策略带来的一个后果是，job必须有一个无参的构造函数（当使用默认的JobFactory时）；
+     * 另一个后果是，在job类中，不应该定义有状态的数据属性，因为在job的多次执行中，这些属性的值不会保留.
+     * 通过JobDetail的JobDataMap给job实例增加属性或配置
+     * @return
+     */
     private JobDetail createJobDetail() {
-        JobDetail result = JobBuilder.newJob(jobConfiguration.getJobClass()).withIdentity(jobConfiguration.getJobName()).build();
+        JobDetail result = JobBuilder.newJob(jobConfiguration.getJobClass())
+        		.withIdentity(jobConfiguration.getJobName()).withDescription(jobConfiguration.getJobName())
+        		.build();
         result.getJobDataMap().put("configService", configService);
         result.getJobDataMap().put("shardingService", shardingService);
         result.getJobDataMap().put("executionContextService", executionContextService);
@@ -141,6 +185,11 @@ public class JobScheduler {
         return result;
     }
     
+    /**
+     * 创建触发器
+     * @param cronExpression
+     * @return
+     */
     private CronTrigger createTrigger(final String cronExpression) {
         CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression);
         if (configService.isMisfire()) {
@@ -153,14 +202,28 @@ public class JobScheduler {
                 .withSchedule(cronScheduleBuilder).build();
     }
     
+    /**
+     * 初始化调度器
+     * 每个job创建自己的调度器
+     * @param jobName
+     * @return
+     * @throws SchedulerException
+     */
     private Scheduler initializeScheduler(final String jobName) throws SchedulerException {
         StdSchedulerFactory factory = new StdSchedulerFactory();
         factory.initialize(getBaseQuartzProperties(jobName));
         Scheduler result = factory.getScheduler();
+        // 添加定时任务触发时处理服务
         result.getListenerManager().addTriggerListener(new JobTriggerListener(executionService, shardingService));
         return result;
     }
     
+    /**
+     * 设置Scheduler配置信息
+     * 不同的instanceName名字会生成不同的Scheduler
+     * @param jobName
+     * @return
+     */
     private Properties getBaseQuartzProperties(final String jobName) {
         Properties result = new Properties();
         result.put("org.quartz.threadPool.class", "org.quartz.simpl.SimpleThreadPool");
@@ -176,6 +239,11 @@ public class JobScheduler {
     protected void prepareEnvironments(final Properties props) {
     }
     
+    /**
+     * 调度任务
+     * @param trigger
+     * @throws SchedulerException
+     */
     private void scheduleJob(final CronTrigger trigger) throws SchedulerException {
         if (!scheduler.checkExists(jobDetail.getKey())) {
             scheduler.scheduleJob(jobDetail, trigger);

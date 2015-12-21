@@ -47,6 +47,12 @@ public final class SpringZookeeperRegistryCenter extends ZookeeperRegistryCenter
         getZkConfig().setBaseSleepTimeMilliseconds(Integer.parseInt(placeholderResolved.getResolvePlaceholderText(springZookeeperConfigurationDto.getBaseSleepTimeMilliseconds())));
         getZkConfig().setMaxSleepTimeMilliseconds(Integer.parseInt(placeholderResolved.getResolvePlaceholderText(springZookeeperConfigurationDto.getMaxSleepTimeMilliseconds())));
         getZkConfig().setMaxRetries(Integer.parseInt(placeholderResolved.getResolvePlaceholderText(springZookeeperConfigurationDto.getMaxRetries())));
+        
+        String jobNodeName = placeholderResolved.getResolvePlaceholderText(springZookeeperConfigurationDto.getJobNodeName());
+        if (!Strings.isNullOrEmpty(jobNodeName)) {
+        	getZkConfig().setJobNodeName(placeholderResolved.getResolvePlaceholderText(springZookeeperConfigurationDto.getJobNodeName()));
+        }
+        
         String sessionTimeoutMilliseconds = placeholderResolved.getResolvePlaceholderText(springZookeeperConfigurationDto.getSessionTimeoutMilliseconds());
         if (!Strings.isNullOrEmpty(sessionTimeoutMilliseconds)) {
             getZkConfig().setSessionTimeoutMilliseconds(Integer.parseInt(sessionTimeoutMilliseconds));

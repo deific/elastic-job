@@ -17,8 +17,6 @@
 
 package com.dangdang.ddframe.job.spring.schedule;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.Scheduler;
@@ -30,8 +28,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
+import com.dangdang.ddframe.job.internal.job.AbstractElasticJob;
 import com.dangdang.ddframe.job.spring.util.AopTargetUtils;
 import com.google.common.base.Preconditions;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 基于Spring Bean的作业工厂.
@@ -52,8 +53,9 @@ public final class SpringJobFactory extends PropertySettingJobFactory {
         Preconditions.checkNotNull(applicationContext, "applicationContext cannot be null, should call setApplicationContext first.");
         Job job = null;
         try {
-            for (Job each : applicationContext.getBeansOfType(Job.class).values()) {
-                if (AopUtils.getTargetClass(each) == bundle.getJobDetail().getJobClass()) {
+            for (AbstractElasticJob each : applicationContext.getBeansOfType(AbstractElasticJob.class).values()) {
+                if (AopUtils.getTargetClass(each) == bundle.getJobDetail().getJobClass() 
+                		&& each.getJobName().equals(bundle.getJobDetail().getDescription())) {
                     job = each;
                     break;
                 }
@@ -61,7 +63,8 @@ public final class SpringJobFactory extends PropertySettingJobFactory {
             if (null == job) {
                 throw new NoSuchBeanDefinitionException("");
             }
-        } catch (final BeansException ex) {
+            
+        } catch (final Exception ex) {
             log.info("Elastic job: cannot found bean for class: '{}'. This job is not managed for spring.", bundle.getJobDetail().getJobClass().getCanonicalName());
             return super.newJob(bundle, scheduler);
         }

@@ -93,4 +93,7 @@ public abstract class AbstractThroughputDataFlowElasticJob<T> extends AbstractDa
         }
         latchAwait(latch);
     }
+
+	public void updateSharingItemDataOffset(JobExecutionMultipleShardingContext shardingContext, T data) {
+	}
 }

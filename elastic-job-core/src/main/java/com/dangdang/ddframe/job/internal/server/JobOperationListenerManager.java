@@ -25,6 +25,8 @@ import org.apache.curator.framework.state.ConnectionStateListener;
 
 import com.dangdang.ddframe.job.api.JobConfiguration;
 import com.dangdang.ddframe.job.api.JobScheduler;
+import com.dangdang.ddframe.job.internal.env.JobNodeService;
+import com.dangdang.ddframe.job.internal.env.LocalJobNodeService;
 import com.dangdang.ddframe.job.internal.listener.AbstractJobListener;
 import com.dangdang.ddframe.job.internal.listener.AbstractListenerManager;
 import com.dangdang.ddframe.job.internal.schedule.JobRegistry;
@@ -41,10 +43,13 @@ public final class JobOperationListenerManager extends AbstractListenerManager {
     
     private final ServerNode serverNode;
     
+    private final JobNodeService jobNodeService;
+    
     public JobOperationListenerManager(final CoordinatorRegistryCenter coordinatorRegistryCenter, final JobConfiguration jobConfiguration) {
         super(coordinatorRegistryCenter, jobConfiguration);
         jobName = jobConfiguration.getJobName();
-        serverNode = new ServerNode(jobName);
+        jobNodeService = new LocalJobNodeService(coordinatorRegistryCenter);
+        serverNode = new ServerNode(jobNodeService, jobName);
     }
     
     @Override

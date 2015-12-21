@@ -31,22 +31,23 @@ import org.junit.Test;
 
 import com.dangdang.ddframe.job.api.JobExecutionMultipleShardingContext;
 import com.dangdang.ddframe.job.internal.AbstractBaseJobTest;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
+import com.dangdang.ddframe.job.internal.env.JobNodeService;
+import com.dangdang.ddframe.job.internal.env.LocalJobNodeService;
 
 public final class ExecutionContextServiceTest extends AbstractBaseJobTest {
     
-    private final LocalHostService localHostService = new RealLocalHostService();
+    private JobNodeService jobNodeService;
     
     private final ExecutionContextService executionContextService = new ExecutionContextService(getRegistryCenter(), getJobConfig());
     
     @Test
     public void assertGetJobExecutionShardingContextWhenNotAssignShardingItem() {
+    	jobNodeService = new LocalJobNodeService(getRegistryCenter());
         getRegistryCenter().persist("/testJob/config/shardingTotalCount", "3");
         getRegistryCenter().persist("/testJob/config/jobParameter", "para");
         getRegistryCenter().persist("/testJob/config/fetchDataCount", "100");
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.FALSE.toString());
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/sharding", "");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/sharding", "");
         JobExecutionMultipleShardingContext actual = executionContextService.getJobExecutionShardingContext();
         assertThat(actual.getJobName(), is("testJob"));
         assertThat(actual.getShardingTotalCount(), is(3));
@@ -58,12 +59,13 @@ public final class ExecutionContextServiceTest extends AbstractBaseJobTest {
     
     @Test
     public void assertGetJobExecutionShardingContextWhenAssignShardingItems() {
+    	jobNodeService = new LocalJobNodeService(getRegistryCenter());
         getRegistryCenter().persist("/testJob/config/shardingTotalCount", "3");
         getRegistryCenter().persist("/testJob/config/shardingItemParameters", "0=A,2=C");
         getRegistryCenter().persist("/testJob/config/jobParameter", "para");
         getRegistryCenter().persist("/testJob/config/fetchDataCount", "100");
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.TRUE.toString());
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/sharding", "0,1");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/sharding", "0,1");
         getRegistryCenter().persist("/testJob/execution/0", "");
         getRegistryCenter().persist("/testJob/execution/1", "");
         getRegistryCenter().persist("/testJob/execution/2", "");
@@ -82,14 +84,15 @@ public final class ExecutionContextServiceTest extends AbstractBaseJobTest {
     
     @Test
     public void assertGetJobExecutionShardingContextWhenEnableFailover() {
+    	jobNodeService = new LocalJobNodeService(getRegistryCenter());
         getRegistryCenter().persist("/testJob/config/failover", Boolean.TRUE.toString());
         getRegistryCenter().persist("/testJob/config/shardingTotalCount", "3");
         getRegistryCenter().persist("/testJob/config/shardingItemParameters", "0=A,2=C");
         getRegistryCenter().persist("/testJob/config/jobParameter", "para");
         getRegistryCenter().persist("/testJob/config/fetchDataCount", "100");
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.TRUE.toString());
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/sharding", "0,1");
-        getRegistryCenter().persist("/testJob/execution/2/failover", localHostService.getIp());
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/sharding", "0,1");
+        getRegistryCenter().persist("/testJob/execution/2/failover", jobNodeService.getNodeName());
         getRegistryCenter().persist("/testJob/execution/0", "");
         getRegistryCenter().persist("/testJob/execution/1/completed", "");
         getRegistryCenter().persist("/testJob/execution/2", "");
@@ -108,13 +111,14 @@ public final class ExecutionContextServiceTest extends AbstractBaseJobTest {
     
     @Test
     public void assertGetJobExecutionShardingContextWhenEnableFailoverAndForTakeOff() {
+    	jobNodeService = new LocalJobNodeService(getRegistryCenter());
         getRegistryCenter().persist("/testJob/config/failover", Boolean.TRUE.toString());
         getRegistryCenter().persist("/testJob/config/shardingTotalCount", "3");
         getRegistryCenter().persist("/testJob/config/shardingItemParameters", "0=A,2=C");
         getRegistryCenter().persist("/testJob/config/jobParameter", "para");
         getRegistryCenter().persist("/testJob/config/fetchDataCount", "100");
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.TRUE.toString());
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/sharding", "0,1");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/sharding", "0,1");
         getRegistryCenter().persist("/testJob/execution/0/failover", "host0");
         getRegistryCenter().persist("/testJob/execution/0", "");
         getRegistryCenter().persist("/testJob/execution/1/completed", "");
@@ -132,12 +136,13 @@ public final class ExecutionContextServiceTest extends AbstractBaseJobTest {
     
     @Test
     public void assertGetJobExecutionShardingContextWhenHasRunningItems() {
+    	jobNodeService = new LocalJobNodeService(getRegistryCenter());
         getRegistryCenter().persist("/testJob/config/shardingTotalCount", "3");
         getRegistryCenter().persist("/testJob/config/shardingItemParameters", "0=A,2=C");
         getRegistryCenter().persist("/testJob/config/jobParameter", "para");
         getRegistryCenter().persist("/testJob/config/fetchDataCount", "100");
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.TRUE.toString());
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/sharding", "0,1");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/sharding", "0,1");
         getRegistryCenter().persist("/testJob/execution/0/running", "");
         getRegistryCenter().persist("/testJob/execution/1", "");
         getRegistryCenter().persist("/testJob/execution/2", "");
@@ -154,11 +159,12 @@ public final class ExecutionContextServiceTest extends AbstractBaseJobTest {
     
     @Test
     public void assertGetJobExecutionShardingContextWhenHaveOffsets() {
+    	jobNodeService = new LocalJobNodeService(getRegistryCenter());
         getRegistryCenter().persist("/testJob/config/shardingTotalCount", "3");
         getRegistryCenter().persist("/testJob/config/shardingItemParameters", "0=A,2=C");
         getRegistryCenter().persist("/testJob/config/jobParameter", "para");
         getRegistryCenter().persist("/testJob/config/fetchDataCount", "100");
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/sharding", "0,1");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/sharding", "0,1");
         getRegistryCenter().persist("/testJob/offset/0", "offset0");
         getRegistryCenter().persist("/testJob/offset/1", "");
         getRegistryCenter().persist("/testJob/offset/2", "offset2");

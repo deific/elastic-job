@@ -17,22 +17,39 @@
 
 package com.dangdang.ddframe.job.internal.server;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
+import org.junit.Before;
 import org.junit.Test;
 
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
+import com.dangdang.ddframe.job.internal.env.JobNodeService;
+import com.dangdang.ddframe.job.internal.env.LocalJobNodeService;
+import com.dangdang.ddframe.reg.base.CoordinatorRegistryCenter;
+import com.dangdang.ddframe.reg.zookeeper.ZookeeperConfiguration;
+import com.dangdang.ddframe.reg.zookeeper.ZookeeperRegistryCenter;
+import com.dangdang.ddframe.test.NestedZookeeperServers;
 
 public final class ServerNodeTest {
+	
+	private final ZookeeperConfiguration zkConfig = new ZookeeperConfiguration(NestedZookeeperServers.ZK_CONNECTION_STRING, "zkRegTestCenter", 2000, 1000 * 60, 3);
+	    
+	private final CoordinatorRegistryCenter regCenter = new ZookeeperRegistryCenter(zkConfig);
     
-    private LocalHostService localHostService = new RealLocalHostService();
-    
-    private ServerNode serverNode = new ServerNode("testJob");
-    
+	ServerNode serverNode;
+	
+	JobNodeService jobNodeService;
+    @Before
+    public final void initRegistryCenter() throws Exception {
+        NestedZookeeperServers.getInstance().startServerIfNotStarted();
+        regCenter.init();
+        regCenter.persist("/testJob", "");
+        jobNodeService = new LocalJobNodeService(regCenter);
+        serverNode = new ServerNode(jobNodeService, "testJob");
+    }
+	 
     @Test
     public void assertGetHostNameNode() {
         assertThat(ServerNode.getHostNameNode("host0"), is("servers/host0/hostName"));
@@ -65,6 +82,7 @@ public final class ServerNodeTest {
     
     @Test
     public void assertIsServerStatusPath() {
+       
         assertTrue(serverNode.isServerStatusPath("/testJob/servers/host0/status"));
         assertFalse(serverNode.isServerStatusPath("/otherJob/servers/host0/status"));
         assertFalse(serverNode.isServerStatusPath("/testJob/servers/host0/disabled"));
@@ -79,6 +97,6 @@ public final class ServerNodeTest {
     
     @Test
     public void assertIsJobStopedPath() {
-        assertTrue(serverNode.isJobStopedPath("/testJob/servers/" + localHostService.getIp() + "/stoped"));
+        assertTrue(serverNode.isJobStopedPath("/testJob/servers/" + jobNodeService.getNodeName() + "/stoped"));
     }
 }

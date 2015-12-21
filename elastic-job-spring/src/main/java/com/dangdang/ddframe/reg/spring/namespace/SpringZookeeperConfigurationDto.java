@@ -46,4 +46,6 @@ final class SpringZookeeperConfigurationDto {
     private String localPropertiesPath;
     
     private String overwrite;
+    
+    private String jobNodeName;
 }

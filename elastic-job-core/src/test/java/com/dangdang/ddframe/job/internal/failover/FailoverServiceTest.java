@@ -28,26 +28,22 @@ import org.junit.Test;
 
 import com.dangdang.ddframe.job.api.JobScheduler;
 import com.dangdang.ddframe.job.internal.AbstractBaseJobTest;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
 import com.dangdang.ddframe.job.internal.schedule.JobRegistry;
 
 public final class FailoverServiceTest extends AbstractBaseJobTest {
-    
-    private final LocalHostService localHostService = new RealLocalHostService();
     
     private final FailoverService failoverService = new FailoverService(getRegistryCenter(), getJobConfig());
     
     @Test
     public void assertSetCrashedFailoverFlag() {
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/sharding", "0");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/sharding", "0");
         failoverService.setCrashedFailoverFlag(0);
         assertTrue(getRegistryCenter().isExisted("/testJob/leader/failover/items/0"));
     }
     
     @Test
     public void assertSetCrashedFailoverFlagWhenItemIsAssigned() {
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/sharding", "0");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/sharding", "0");
         getRegistryCenter().persist("/testJob/execution/0/failover", "host0");
         failoverService.setCrashedFailoverFlag(0);
         assertFalse(getRegistryCenter().isExisted("/testJob/leader/failover/items/0"));
@@ -86,27 +82,27 @@ public final class FailoverServiceTest extends AbstractBaseJobTest {
         assertTrue(getRegistryCenter().isExisted("/testJob/leader/failover/latch"));
         assertTrue(getRegistryCenter().isExisted("/testJob/leader/failover/items/0"));
         assertFalse(getRegistryCenter().isExisted("/testJob/leader/failover/items/1"));
-        assertThat(getRegistryCenter().get("/testJob/execution/1/failover"), is(localHostService.getIp()));
+        assertThat(getRegistryCenter().get("/testJob/execution/1/failover"), is(jobNodeService.getNodeName()));
     }
     
     @Test
     public void assertUpdateFailoverComplete() {
-        getRegistryCenter().persist("/testJob/execution/0/failover", localHostService.getIp());
+        getRegistryCenter().persist("/testJob/execution/0/failover", jobNodeService.getNodeName());
         failoverService.updateFailoverComplete(Arrays.asList(0));
         assertFalse(getRegistryCenter().isExisted("/testJob/execution/0/failover"));
     }
     
     @Test
     public void assertGetLocalHostFailoverItems() {
-        getRegistryCenter().persist("/testJob/execution/0/failover", localHostService.getIp());
-        getRegistryCenter().persist("/testJob/execution/1/failover", localHostService.getIp());
+        getRegistryCenter().persist("/testJob/execution/0/failover", jobNodeService.getNodeName());
+        getRegistryCenter().persist("/testJob/execution/1/failover", jobNodeService.getNodeName());
         getRegistryCenter().persist("/testJob/execution/2/failover", "host0");
         assertThat(failoverService.getLocalHostFailoverItems(), is(Arrays.asList(0, 1)));
     }
     
     @Test
     public void assertGetLocalHostTakeOffItems() {
-        getRegistryCenter().persist("/testJob/servers/" + new RealLocalHostService().getIp() + "/sharding", "0,1,2");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/sharding", "0,1,2");
         getRegistryCenter().persist("/testJob/execution/0/failover", "host0");
         getRegistryCenter().persist("/testJob/execution/1/failover", "host1");
         assertThat(failoverService.getLocalHostTakeOffItems(), is(Arrays.asList(0, 1)));
@@ -114,7 +110,7 @@ public final class FailoverServiceTest extends AbstractBaseJobTest {
     
     @Test
     public void assertRemoveFailoverInfo() {
-        getRegistryCenter().persist("/testJob/execution/0/failover", localHostService.getIp());
+        getRegistryCenter().persist("/testJob/execution/0/failover", jobNodeService.getNodeName());
         getRegistryCenter().persist("/testJob/execution/1/completed", "");
         failoverService.removeFailoverInfo();
         assertFalse(getRegistryCenter().isExisted("/testJob/execution/0/failover"));

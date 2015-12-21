@@ -111,6 +111,16 @@ public class JobConfiguration {
     private int fetchDataCount = 1;
     
     /**
+     * 每次抓取的数据的偏移标记.
+     * 
+     * <p>
+     * 用于增量数据抓取
+     * 可在不重启作业的情况下灵活配置抓取数据量.
+     * </p>
+     */
+    private String fetchDataOffset = "";
+    
+    /**
      * 最大容忍的本机与注册中心的时间误差秒数.
      * 
      * <p>
@@ -159,4 +169,9 @@ public class JobConfiguration {
      * 如果可覆盖, 每次启动作业都以本地配置为准.
      */
     private boolean overwrite;
+    
+    /**
+     * 数据处理配置.
+     */
+    private DataProcessConfig jobDataProcessConfig;
 }

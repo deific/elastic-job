@@ -23,6 +23,8 @@ import org.apache.curator.framework.recipes.cache.TreeCacheEvent.Type;
 
 import com.dangdang.ddframe.job.api.JobConfiguration;
 import com.dangdang.ddframe.job.internal.config.ConfigurationNode;
+import com.dangdang.ddframe.job.internal.env.JobNodeService;
+import com.dangdang.ddframe.job.internal.env.LocalJobNodeService;
 import com.dangdang.ddframe.job.internal.execution.ExecutionService;
 import com.dangdang.ddframe.job.internal.listener.AbstractJobListener;
 import com.dangdang.ddframe.job.internal.listener.AbstractListenerManager;
@@ -44,12 +46,15 @@ public final class ShardingListenerManager extends AbstractListenerManager {
     
     private final ServerNode serverNode;
     
+    private final JobNodeService jobNodeService;
+    
     public ShardingListenerManager(final CoordinatorRegistryCenter coordinatorRegistryCenter, final JobConfiguration jobConfiguration) {
         super(coordinatorRegistryCenter, jobConfiguration);
+        jobNodeService = new LocalJobNodeService(coordinatorRegistryCenter);
         shardingService = new ShardingService(coordinatorRegistryCenter, jobConfiguration);
         executionService = new ExecutionService(coordinatorRegistryCenter, jobConfiguration);
         configurationNode = new ConfigurationNode(jobConfiguration.getJobName());
-        serverNode = new ServerNode(jobConfiguration.getJobName());
+        serverNode = new ServerNode(jobNodeService, jobConfiguration.getJobName());
     }
     
     @Override

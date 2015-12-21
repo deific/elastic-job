@@ -43,6 +43,7 @@ public class JobBeanDefinitionParser extends AbstractBeanDefinitionParser {
         factory.setDestroyMethodName("shutdown");
         factory.addConstructorArgReference(element.getAttribute("regCenter"));
         factory.addConstructorArgReference(createJobConfiguration(element, parserContext));
+        createJobBean(element, parserContext);
         return factory.getBeanDefinition();
     }
     
@@ -52,12 +53,16 @@ public class JobBeanDefinitionParser extends AbstractBeanDefinitionParser {
         factory.addConstructorArgValue(element.getAttribute("class"));
         factory.addConstructorArgValue(element.getAttribute("shardingTotalCount"));
         factory.addConstructorArgValue(element.getAttribute("cron"));
+        
+        factory.addPropertyReference("jobDataProcessConfig", element.getAttribute("jobDataProcessConfig"));
+        
         addPropertyValueIfNotEmpty("shardingItemParameters", element, factory);
         addPropertyValueIfNotEmpty("jobParameter", element, factory);
         addPropertyValueIfNotEmpty("monitorExecution", element, factory);
         addPropertyValueIfNotEmpty("processCountIntervalSeconds", element, factory);
         addPropertyValueIfNotEmpty("concurrentDataProcessThreadCount", element, factory);
         addPropertyValueIfNotEmpty("fetchDataCount", element, factory);
+        addPropertyValueIfNotEmpty("fetchDataOffset", element, factory);
         addPropertyValueIfNotEmpty("maxTimeDiffSeconds", element, factory);
         addPropertyValueIfNotEmpty("failover", element, factory);
         addPropertyValueIfNotEmpty("misfire", element, factory);
@@ -65,11 +70,24 @@ public class JobBeanDefinitionParser extends AbstractBeanDefinitionParser {
         addPropertyValueIfNotEmpty("description", element, factory);
         addPropertyValueIfNotEmpty("disabled", element, factory);
         addPropertyValueIfNotEmpty("overwrite", element, factory);
+        
         String result = element.getAttribute("id") + "Conf";
         parserContext.getRegistry().registerBeanDefinition(result, factory.getBeanDefinition());
         return result;
     }
     
+    /**
+     * 创建任务实例
+     * @param element
+     * @param parserContext
+     */
+    private void createJobBean(final Element element, final ParserContext parserContext) {
+    	String jobClassName = element.getAttribute("class");
+    	BeanDefinitionBuilder factory = BeanDefinitionBuilder.rootBeanDefinition(jobClassName);
+    	String result = element.getAttribute("id");
+    	factory.addPropertyValue("jobName", result);
+        parserContext.getRegistry().registerBeanDefinition(result, factory.getBeanDefinition());
+    }
     private void addPropertyValueIfNotEmpty(final String propertyName, final Element element, final BeanDefinitionBuilder factory) {
         String propertyValue = element.getAttribute(propertyName);
         if (!Strings.isNullOrEmpty(propertyValue)) {

@@ -32,10 +32,13 @@
                 <property name="shardingItemParameters" value="${simpleElasticJob.shardingItemParameters}" />
                 <property name="disabled" value="${simpleElasticJob.disabled}" />
                 <property name="overwrite" value="${simpleElasticJob.overwrite}" />
+                <property name="fetchDataOffset" value="90" />
+                <property name="jobDataProcessConfig" ref="simpleElasticJobDataProcessConfig" />
             </bean>
         </constructor-arg>
     </bean>
-    
+    <bean id="simpleElasticJobDataProcessConfig" class="com.dangdang.ddframe.job.api.DefaultDataProcessConfig">
+	</bean>
     <bean id="throughputDataFlowElasticJob" class="com.dangdang.ddframe.job.spring.schedule.SpringJobScheduler" init-method="init">
         <constructor-arg ref="regCenter"></constructor-arg>
         <constructor-arg>
@@ -49,10 +52,13 @@
                 <property name="concurrentDataProcessThreadCount" value="3" />
                 <property name="fetchDataCount" value="100" />
                 <property name="overwrite" value="true" />
+                <property name="fetchDataOffset" value="90" />
+                <property name="jobDataProcessConfig" ref="throughputDataFlowElasticJobDataProcessConfig" />
             </bean>
         </constructor-arg>
     </bean>
-    
+    <bean id="throughputDataFlowElasticJobDataProcessConfig" class="com.dangdang.ddframe.job.api.DefaultDataProcessConfig">
+	</bean>
     <bean id="simpleElasticJobBean" class="com.dangdang.ddframe.job.fixture.SimpleElasticJob">
         <property name="springValue" value="simple" />
     </bean>

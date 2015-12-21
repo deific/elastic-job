@@ -24,45 +24,29 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 import com.dangdang.ddframe.job.exception.JobException;
+import com.dangdang.ddframe.reg.base.CoordinatorRegistryCenter;
 
 /**
  * 获取真实本机网络的实现类类.
  * 
  * @author zhangliang
  */
-public final class RealLocalHostService implements LocalHostService {
+public final class LocalJobNodeService implements JobNodeService {
     
     private static volatile String cachedIpAddress;
+    private CoordinatorRegistryCenter coordinatorRegistryCenter;
+    private static String nodeName = null;
     
+    public LocalJobNodeService(final CoordinatorRegistryCenter coordinatorRegistryCenter) {
+    	this.coordinatorRegistryCenter = coordinatorRegistryCenter;
+    }
     @Override
-    public String getIp() {
-        if (null != cachedIpAddress) {
-            return cachedIpAddress;
-        }
-        Enumeration<NetworkInterface> netInterfaces;
-        try {
-            netInterfaces = NetworkInterface.getNetworkInterfaces();
-        } catch (final SocketException ex) {
-            throw new JobException(ex);
-        }
-        String localIpAddress = null;
-        while (netInterfaces.hasMoreElements()) {
-            NetworkInterface netInterface = netInterfaces.nextElement();
-            Enumeration<InetAddress> ipAddresses = netInterface.getInetAddresses();
-            while (ipAddresses.hasMoreElements()) {
-                InetAddress ipAddress = ipAddresses.nextElement();
-                if (isPublicIpAddress(ipAddress)) {
-                    String publicIpAddress = ipAddress.getHostAddress();
-                    cachedIpAddress = publicIpAddress;
-                    return publicIpAddress;
-                }
-                if (isLocalIpAddress(ipAddress)) {
-                    localIpAddress = ipAddress.getHostAddress();
-                }
-            }
-        }
-        cachedIpAddress = localIpAddress;
-        return localIpAddress;
+    public String getNodeName() {
+    	if (nodeName == null) {
+    		String jobNodeName = coordinatorRegistryCenter.getJobNodeName();
+            nodeName = getIp() + "#" + jobNodeName;
+    	}
+    	return nodeName;
     }
     
     private boolean isPublicIpAddress(final InetAddress ipAddress) {
@@ -91,4 +75,34 @@ public final class RealLocalHostService implements LocalHostService {
         }
         return result;
     }
+
+	public String getIp() {
+		if (null != cachedIpAddress) {
+            return cachedIpAddress;
+        }
+        Enumeration<NetworkInterface> netInterfaces;
+        try {
+            netInterfaces = NetworkInterface.getNetworkInterfaces();
+        } catch (final SocketException ex) {
+            throw new JobException(ex);
+        }
+        String localIpAddress = null;
+        while (netInterfaces.hasMoreElements()) {
+            NetworkInterface netInterface = netInterfaces.nextElement();
+            Enumeration<InetAddress> ipAddresses = netInterface.getInetAddresses();
+            while (ipAddresses.hasMoreElements()) {
+                InetAddress ipAddress = ipAddresses.nextElement();
+                if (isPublicIpAddress(ipAddress)) {
+                    String publicIpAddress = ipAddress.getHostAddress();
+                    cachedIpAddress = publicIpAddress;
+                    return publicIpAddress;
+                }
+                if (isLocalIpAddress(ipAddress)) {
+                    localIpAddress = ipAddress.getHostAddress();
+                }
+            }
+        }
+        cachedIpAddress = localIpAddress;
+        return localIpAddress;
+	}
 }

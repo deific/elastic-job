@@ -76,6 +76,11 @@ public class ZookeeperConfiguration extends AbstractRegistryCenterConfiguration 
     private int connectionTimeoutMilliseconds;
     
     /**
+     * 任务节点名称
+     */
+    private String jobNodeName;
+    
+    /**
      * 连接Zookeeper的权限令牌.
      * 缺省为不需要权限验证.
      */

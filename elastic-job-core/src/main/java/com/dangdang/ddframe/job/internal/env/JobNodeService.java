@@ -22,7 +22,7 @@ package com.dangdang.ddframe.job.internal.env;
  * 
  * @author zhangliang
  */
-public interface LocalHostService {
+public interface JobNodeService {
     
     /**
      * 获取本机IP地址.
@@ -34,7 +34,7 @@ public interface LocalHostService {
      * 
      * @return 本机IP地址
      */
-    String getIp();
+    String getNodeName();
     
     /**
      * 获取本机Host名称.
@@ -42,4 +42,5 @@ public interface LocalHostService {
      * @return 本机Host名称
      */
     String getHostName();
+    
 }

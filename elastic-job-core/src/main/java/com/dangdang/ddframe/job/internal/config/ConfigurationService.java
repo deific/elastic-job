@@ -29,11 +29,14 @@ import com.dangdang.ddframe.job.internal.storage.JobNodeStorage;
 import com.dangdang.ddframe.reg.base.CoordinatorRegistryCenter;
 import com.google.common.base.Strings;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * 弹性化分布式作业配置服务.
  * 
  * @author zhangliang
  */
+@Slf4j
 public final class ConfigurationService {
     
     private final JobNodeStorage jobNodeStorage;
@@ -70,6 +73,7 @@ public final class ConfigurationService {
         jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.PROCESS_COUNT_INTERVAL_SECONDS, jobNodeStorage.getJobConfiguration().getProcessCountIntervalSeconds());
         jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.CONCURRENT_DATA_PROCESS_THREAD_COUNT, jobNodeStorage.getJobConfiguration().getConcurrentDataProcessThreadCount());
         jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.FETCH_DATA_COUNT, jobNodeStorage.getJobConfiguration().getFetchDataCount());
+        jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.FETCHDATAOFFSET, jobNodeStorage.getJobConfiguration().getFetchDataOffset());
         jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.MAX_TIME_DIFF_SECONDS, jobNodeStorage.getJobConfiguration().getMaxTimeDiffSeconds());
         jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.FAILOVER, jobNodeStorage.getJobConfiguration().isFailover());
         jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.MISFIRE, jobNodeStorage.getJobConfiguration().isMisfire());
@@ -77,6 +81,13 @@ public final class ConfigurationService {
         jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.DESCRIPTION, jobNodeStorage.getJobConfiguration().getDescription());
     }
     
+    /**
+     * 返回作业配置
+     * @return
+     */
+    public JobConfiguration getJobConfiguration() {
+    	return jobNodeStorage.getJobConfiguration();
+    }
     /**
      * 获取作业分片总数.
      * 
@@ -180,6 +191,9 @@ public final class ConfigurationService {
         }
     }
     
+    public void updateFetchDataOffset(String fetchDataCount) {
+    	jobNodeStorage.updateJobNode(ConfigurationNode.FETCHDATAOFFSET, fetchDataCount);
+    }
     /**
      * 获取是否开启失效转移.
      * 

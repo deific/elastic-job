@@ -20,8 +20,8 @@ package com.dangdang.ddframe.job.internal.election;
 import lombok.extern.slf4j.Slf4j;
 
 import com.dangdang.ddframe.job.api.JobConfiguration;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
+import com.dangdang.ddframe.job.internal.env.JobNodeService;
+import com.dangdang.ddframe.job.internal.env.LocalJobNodeService;
 import com.dangdang.ddframe.job.internal.storage.JobNodeStorage;
 import com.dangdang.ddframe.job.internal.storage.LeaderExecutionCallback;
 import com.dangdang.ddframe.job.internal.util.BlockUtils;
@@ -35,11 +35,12 @@ import com.dangdang.ddframe.reg.base.CoordinatorRegistryCenter;
 @Slf4j
 public final class LeaderElectionService {
     
-    private final LocalHostService localHostService = new RealLocalHostService();
+    private final JobNodeService jobNodeService;
     
     private final JobNodeStorage jobNodeStorage;
     
     public LeaderElectionService(final CoordinatorRegistryCenter coordinatorRegistryCenter, final JobConfiguration jobConfiguration) {
+    	jobNodeService = new LocalJobNodeService(coordinatorRegistryCenter);
         jobNodeStorage = new JobNodeStorage(coordinatorRegistryCenter, jobConfiguration);
     }
     
@@ -52,7 +53,7 @@ public final class LeaderElectionService {
             @Override
             public void execute() {
                 if (!jobNodeStorage.isJobNodeExisted(ElectionNode.LEADER_HOST)) {
-                    jobNodeStorage.fillEphemeralJobNode(ElectionNode.LEADER_HOST, localHostService.getIp());
+                    jobNodeStorage.fillEphemeralJobNode(ElectionNode.LEADER_HOST, jobNodeService.getNodeName());
                 }
             }
         });
@@ -68,7 +69,7 @@ public final class LeaderElectionService {
      * @return 当前节点是否是主节点
      */
     public Boolean isLeader() {
-        String locaLhostIp = localHostService.getIp();
+        String locaLhostIp = jobNodeService.getNodeName();
         while (!hasLeader()) {
             log.info("Elastic job: leader node is electing, waiting for 100 ms at server '{}'", locaLhostIp);
             BlockUtils.waitingShortTime();

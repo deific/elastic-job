@@ -43,15 +43,26 @@ public abstract class AbstractSequenceDataFlowElasticJob<T> extends AbstractData
     
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     
+    /**
+     * 作业执行入口
+     */
     @Override
     protected final void executeJob(final JobExecutionMultipleShardingContext shardingContext) {
+    	long startTime = System.currentTimeMillis();
+    	log.info("starting execute job:", shardingContext.getJobName());
         if (isStreamingProcess()) {
             executeStreamingJob(shardingContext);
         } else {
             executeOneOffJob(shardingContext);
         }
+        long endTime = System.currentTimeMillis();
+        log.info("completed job:{}, times：{} ms", shardingContext.getJobName(), (endTime - startTime));
     }
-    
+    /**
+     * 流式作业
+     * 循环调用读取数据处理数据作业
+     * @param shardingContext
+     */
     private void executeStreamingJob(final JobExecutionMultipleShardingContext shardingContext) {
         Map<Integer, List<T>> data = concurrentFetchData(shardingContext);
         while (!data.isEmpty() && !isStoped() && !getShardingService().isNeedSharding()) {
@@ -59,21 +70,33 @@ public abstract class AbstractSequenceDataFlowElasticJob<T> extends AbstractData
             data = concurrentFetchData(shardingContext);
         }
     }
-    
+    /**
+     * 单次作业
+     * @param shardingContext
+     */
     private void executeOneOffJob(final JobExecutionMultipleShardingContext shardingContext) {
-        Map<Integer, List<T>> data = concurrentFetchData(shardingContext);
+        // 读取所有分片作业数据
+    	Map<Integer, List<T>> data = concurrentFetchData(shardingContext);
         if (!data.isEmpty()) {
+        	// 处理作业数据
             concurrentProcessData(shardingContext, data);
         }
     }
     
+    /**
+     * 读取数据
+     * @param shardingContext
+     * @return
+     */
     private Map<Integer, List<T>> concurrentFetchData(final JobExecutionMultipleShardingContext shardingContext) {
-        List<Integer> items = shardingContext.getShardingItems();
+        // 获取分片信息
+    	List<Integer> items = shardingContext.getShardingItems();
         final Map<Integer, List<T>> result = new ConcurrentHashMap<>(items.size());
         final CountDownLatch latch = new CountDownLatch(items.size());
+        
+        // 执行每个分片任务，当所有分片任务结束后执行数据处理
         for (final int each : items) {
-            executorService.submit(new Runnable() {
-                
+        	executorService.submit(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -92,8 +115,14 @@ public abstract class AbstractSequenceDataFlowElasticJob<T> extends AbstractData
         return result;
     }
     
+    /**
+     * 处理数据
+     * @param shardingContext
+     * @param data
+     */
     private void concurrentProcessData(final JobExecutionMultipleShardingContext shardingContext, final Map<Integer, List<T>> data) {
         final CountDownLatch latch = new CountDownLatch(data.size());
+        // 执行每个分片任务的数据处理任务
         for (final Entry<Integer, List<T>> each : data.entrySet()) {
             executorService.submit(new Runnable() {
                 
@@ -109,4 +138,8 @@ public abstract class AbstractSequenceDataFlowElasticJob<T> extends AbstractData
         }
         latchAwait(latch);
     }
+    
+	public void updateSharingItemDataOffset(JobExecutionSingleShardingContext shardingContext, T data) {
+		
+	}
 }

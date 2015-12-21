@@ -5,6 +5,7 @@
         targetNamespace="http://www.dangdang.com/schema/ddframe/job"
         elementFormDefault="qualified"
         attributeFormDefault="unqualified">
+        
     <xsd:import namespace="http://www.springframework.org/schema/beans"/>
     
     <xsd:element name="bean">
@@ -21,6 +22,7 @@
                     <xsd:attribute name="processCountIntervalSeconds" type="xsd:string" />
                     <xsd:attribute name="concurrentDataProcessThreadCount" type="xsd:string" />
                     <xsd:attribute name="fetchDataCount" type="xsd:string" />
+                    <xsd:attribute name="fetchDataOffset" type="xsd:string" />
                     <xsd:attribute name="maxTimeDiffSeconds" type="xsd:string" />
                     <xsd:attribute name="failover" type="xsd:string" />
                     <xsd:attribute name="misfire" type="xsd:string" />
@@ -28,6 +30,7 @@
                     <xsd:attribute name="description" type="xsd:string" />
                     <xsd:attribute name="disabled" type="xsd:string" />
                     <xsd:attribute name="overwrite" type="xsd:string" />
+                    <xsd:attribute name="jobDataProcessConfig" type="xsd:string" use="required" />
                 </xsd:extension>
             </xsd:complexContent>
         </xsd:complexType>

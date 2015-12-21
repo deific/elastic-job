@@ -33,8 +33,9 @@ import com.dangdang.ddframe.reg.base.CoordinatorRegistryCenter;
  */
 public final class ListenerManager {
     
+	// 主节点选举监听器
     private final ElectionListenerManager electionListenerManager;
-    
+    // 分配监听
     private final ShardingListenerManager shardingListenerManager;
     
     private final ExecutionListenerManager executionListenerManager;

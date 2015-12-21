@@ -28,6 +28,7 @@ import com.dangdang.ddframe.reg.base.CoordinatorRegistryCenter;
 
 /**
  * 基于Spring的作业启动器.
+ * 通过spring启动作业调度器
  *
  * @author caohao
  */

@@ -36,7 +36,7 @@ public final class LeaderElectionServiceTest extends AbstractBaseJobTest {
     
     @Before
     public void setUp() throws NoSuchFieldException {
-        ReflectionUtils.setFieldValue(leaderElectionService, "localHostService", new FakeLocalHostService("host0"));
+        ReflectionUtils.setFieldValue(leaderElectionService, "jobNodeService", new FakeLocalHostService("host0"));
     }
     
     @Test

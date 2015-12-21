@@ -63,4 +63,9 @@ public interface CoordinatorRegistryCenter extends RegistryCenter {
      * @return 注册中心数据缓存对象
      */
     Object getRawCache();
+    
+    /**
+     * 获取在主持中心注册的任务节点名称
+     */
+    String getJobNodeName();
 }

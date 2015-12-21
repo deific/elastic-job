@@ -23,8 +23,8 @@ import java.util.List;
 
 import com.dangdang.ddframe.job.api.JobConfiguration;
 import com.dangdang.ddframe.job.internal.election.LeaderElectionService;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
+import com.dangdang.ddframe.job.internal.env.JobNodeService;
+import com.dangdang.ddframe.job.internal.env.LocalJobNodeService;
 import com.dangdang.ddframe.job.internal.storage.JobNodeStorage;
 import com.dangdang.ddframe.reg.base.CoordinatorRegistryCenter;
 
@@ -37,11 +37,12 @@ public final class ServerService {
     
     private final JobNodeStorage jobNodeStorage;
     
-    private final LocalHostService localHostService = new RealLocalHostService();
+    private final JobNodeService jobNodeService;
     
     private final LeaderElectionService leaderElectionService;
     
     public ServerService(final CoordinatorRegistryCenter coordinatorRegistryCenter, final JobConfiguration jobConfiguration) {
+    	jobNodeService = new LocalJobNodeService(coordinatorRegistryCenter);
         jobNodeStorage = new JobNodeStorage(coordinatorRegistryCenter, jobConfiguration);
         leaderElectionService = new LeaderElectionService(coordinatorRegistryCenter, jobConfiguration);
     }
@@ -59,7 +60,7 @@ public final class ServerService {
     }
     
     private void persistHostName() {
-        jobNodeStorage.fillJobNodeIfNullOrOverwrite(ServerNode.getHostNameNode(localHostService.getIp()), localHostService.getHostName());
+        jobNodeStorage.fillJobNodeIfNullOrOverwrite(ServerNode.getHostNameNode(jobNodeService.getNodeName()), jobNodeService.getHostName());
     }
     
     private void persistDisabled() {
@@ -67,21 +68,21 @@ public final class ServerService {
             return;
         }
         if (jobNodeStorage.getJobConfiguration().isDisabled()) {
-            jobNodeStorage.fillJobNodeIfNullOrOverwrite(ServerNode.getDisabledNode(localHostService.getIp()), "");
+            jobNodeStorage.fillJobNodeIfNullOrOverwrite(ServerNode.getDisabledNode(jobNodeService.getNodeName()), "");
         } else {
-            jobNodeStorage.removeJobNodeIfExisted(ServerNode.getDisabledNode(localHostService.getIp()));
+            jobNodeStorage.removeJobNodeIfExisted(ServerNode.getDisabledNode(jobNodeService.getNodeName()));
         }
     }
     
     private void ephemeralPersistServerReady() {
-        jobNodeStorage.fillEphemeralJobNode(ServerNode.getStatusNode(localHostService.getIp()), ServerStatus.READY);
+        jobNodeStorage.fillEphemeralJobNode(ServerNode.getStatusNode(jobNodeService.getNodeName()), ServerStatus.READY);
     }
     
     /**
      * 清除停止作业的标记.
      */
     public void clearJobStopedStatus() {
-        jobNodeStorage.removeJobNodeIfExisted(ServerNode.getStopedNode(localHostService.getIp()));
+        jobNodeStorage.removeJobNodeIfExisted(ServerNode.getStopedNode(jobNodeService.getNodeName()));
     }
     
     /**
@@ -90,7 +91,7 @@ public final class ServerService {
      * @return 是否是手工停止的作业
      */
     public boolean isJobStopedManually() {
-        return jobNodeStorage.isJobNodeExisted(ServerNode.getStopedNode(localHostService.getIp()));
+        return jobNodeStorage.isJobNodeExisted(ServerNode.getStopedNode(jobNodeService.getNodeName()));
     }
     
     /**
@@ -99,7 +100,7 @@ public final class ServerService {
      * @param status 服务器状态
      */
     public void updateServerStatus(final ServerStatus status) {
-        jobNodeStorage.updateJobNode(ServerNode.getStatusNode(localHostService.getIp()), status);
+        jobNodeStorage.updateJobNode(ServerNode.getStatusNode(jobNodeService.getNodeName()), status);
     }
     
     /**
@@ -140,13 +141,13 @@ public final class ServerService {
      * @return 当前服务器是否是等待执行的状态
      */
     public boolean isServerReady() {
-        if (jobNodeStorage.isJobNodeExisted(ServerNode.getDisabledNode(localHostService.getIp()))) {
+        if (jobNodeStorage.isJobNodeExisted(ServerNode.getDisabledNode(jobNodeService.getNodeName()))) {
             return false;
         }
-        if (jobNodeStorage.isJobNodeExisted(ServerNode.getStopedNode(localHostService.getIp()))) {
+        if (jobNodeStorage.isJobNodeExisted(ServerNode.getStopedNode(jobNodeService.getNodeName()))) {
             return false;
         }
-        String statusNode = ServerNode.getStatusNode(localHostService.getIp());
+        String statusNode = ServerNode.getStatusNode(jobNodeService.getNodeName());
         if (jobNodeStorage.isJobNodeExisted(statusNode) && ServerStatus.READY.name().equals(jobNodeStorage.getJobNodeData(statusNode))) {
             return true;
         }
@@ -157,13 +158,19 @@ public final class ServerService {
      * 持久化统计处理数据成功的数量的数据.
      */
     public void persistProcessSuccessCount(final int processSuccessCount) {
-        jobNodeStorage.replaceJobNode(ServerNode.getProcessSuccessCountNode(localHostService.getIp()), processSuccessCount);
+    	String node = ServerNode.getProcessSuccessCountNode(jobNodeService.getNodeName());
+    	String count = jobNodeStorage.getJobNodeData(node);
+    	count = (count == null || "".equals(count))?"0":count;
+        jobNodeStorage.replaceJobNode(node, processSuccessCount + Integer.valueOf(count));
     }
     
     /**
      * 持久化统计处理数据失败的数量的数据.
      */
     public void persistProcessFailureCount(final int processFailureCount) {
-        jobNodeStorage.replaceJobNode(ServerNode.getProcessFailureCountNode(localHostService.getIp()), processFailureCount);
+    	String node = ServerNode.getProcessFailureCountNode(jobNodeService.getNodeName());
+    	String count = jobNodeStorage.getJobNodeData(node);
+    	count = (count == null || "".equals(count))?"0":count;
+        jobNodeStorage.replaceJobNode(node, processFailureCount + Integer.valueOf(count));
     }
 }

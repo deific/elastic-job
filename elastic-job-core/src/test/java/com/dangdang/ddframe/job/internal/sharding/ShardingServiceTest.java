@@ -28,14 +28,10 @@ import java.util.Collections;
 import org.junit.Test;
 
 import com.dangdang.ddframe.job.internal.AbstractBaseJobTest;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
 import com.dangdang.ddframe.job.internal.server.ServerStatus;
 import com.dangdang.ddframe.test.WaitingUtils;
 
 public final class ShardingServiceTest extends AbstractBaseJobTest {
-    
-    private final LocalHostService localHostService = new RealLocalHostService();
     
     private final ShardingService shardingService = new ShardingService(getRegistryCenter(), getJobConfig());
     
@@ -82,7 +78,7 @@ public final class ShardingServiceTest extends AbstractBaseJobTest {
     
     @Test
     public void assertShardingNecessary() {
-        String localHostIp = localHostService.getIp();
+        String localHostIp = jobNodeService.getNodeName();
         getRegistryCenter().persist("/testJob/leader/sharding/necessary", "");
         getRegistryCenter().persistEphemeral("/testJob/leader/election/host", localHostIp);
         getRegistryCenter().persist("/testJob/config/shardingTotalCount", "3");
@@ -96,7 +92,7 @@ public final class ShardingServiceTest extends AbstractBaseJobTest {
     
     @Test
     public void assertGetLocalHostShardingItemsWhenNodeExisted() {
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/sharding", "0,1,2");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/sharding", "0,1,2");
         assertThat(shardingService.getLocalHostShardingItems(), is(Arrays.asList(0, 1, 2)));
     }
     

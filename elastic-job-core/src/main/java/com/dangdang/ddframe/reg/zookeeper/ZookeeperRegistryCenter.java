@@ -67,6 +67,9 @@ public class ZookeeperRegistryCenter implements CoordinatorRegistryCenter {
         zkConfig = zookeeperConfiguration;
     }
     
+    public ZookeeperConfiguration getZookeeperConfiguration() {
+    	return zkConfig;
+    }
     public void init() {
         log.debug("Elastic job: zookeeper registry center init, server lists is: {}.", zkConfig.getServerLists());
         Builder builder = CuratorFrameworkFactory.builder()
@@ -302,4 +305,9 @@ public class ZookeeperRegistryCenter implements CoordinatorRegistryCenter {
     public Object getRawCache() {
         return cache;
     }
+
+	@Override
+	public String getJobNodeName() {
+		return zkConfig.getJobNodeName();
+	}
 }

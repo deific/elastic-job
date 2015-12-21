@@ -20,10 +20,10 @@ package com.dangdang.ddframe.job.internal.job;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import lombok.extern.slf4j.Slf4j;
-
 import com.dangdang.ddframe.job.api.DataFlowElasticJob;
 import com.dangdang.ddframe.job.internal.statistics.ProcessCountStatistics;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 用于处理数据流程的作业抽象类.
@@ -43,7 +43,8 @@ public abstract class AbstractDataFlowElasticJob<T, C extends AbstractJobExecuti
     }
     
     protected final void processDataWithStatistics(final C shardingContext, final List<T> data) {
-        for (T each : data) {
+        T lastSuccessData = null;
+    	for (T each : data) {
             boolean isSuccess = false;
             try {
                 isSuccess = processData(shardingContext, each);
@@ -56,11 +57,21 @@ public abstract class AbstractDataFlowElasticJob<T, C extends AbstractJobExecuti
             }
             if (isSuccess) {
                 ProcessCountStatistics.incrementProcessSuccessCount(shardingContext.getJobName());
+                lastSuccessData = each;
             } else {
                 ProcessCountStatistics.incrementProcessFailureCount(shardingContext.getJobName());
+                break;
             }
         }
+        // 更新偏移偏移量
+    	updateSharingItemDataOffset(shardingContext, lastSuccessData);
     }
+    /**
+     * 更新分片作业偏移量
+     * @param shardingContext
+     * @param data
+     */
+    public abstract void updateSharingItemDataOffset(C shardingContext, T data);
     
     protected final void latchAwait(final CountDownLatch latch) {
         try {

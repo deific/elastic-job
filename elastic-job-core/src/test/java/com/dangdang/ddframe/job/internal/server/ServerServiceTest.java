@@ -29,12 +29,9 @@ import org.junit.Test;
 
 import com.dangdang.ddframe.job.api.JobConfiguration;
 import com.dangdang.ddframe.job.internal.AbstractBaseJobTest;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
 
 public final class ServerServiceTest extends AbstractBaseJobTest {
     
-    private final LocalHostService localHostService = new RealLocalHostService();
     
     private final ServerService serverService = new ServerService(getRegistryCenter(), getJobConfig());
     
@@ -46,28 +43,28 @@ public final class ServerServiceTest extends AbstractBaseJobTest {
     @Test
     public void assertPersistServerOnlineWhenLeaderElecting() {
         serverService.persistServerOnline();
-        assertThat(getRegistryCenter().get("/testJob/leader/election/host"), is(localHostService.getIp()));
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/hostName"), is(localHostService.getHostName()));
-        assertFalse(getRegistryCenter().isExisted("/testJob/servers/" + localHostService.getIp() + "/disabled"));
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/status"), is(ServerStatus.READY.name()));
+        assertThat(getRegistryCenter().get("/testJob/leader/election/host"), is(jobNodeService.getNodeName()));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/hostName"), is(jobNodeService.getHostName()));
+        assertFalse(getRegistryCenter().isExisted("/testJob/servers/" + jobNodeService.getNodeName() + "/disabled"));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/status"), is(ServerStatus.READY.name()));
     }
     
     @Test
     public void assertPersistServerOnlineWithoutLeaderElecting() {
-        getRegistryCenter().persist("/testJob/leader/election/host", localHostService.getIp());
+        getRegistryCenter().persist("/testJob/leader/election/host", jobNodeService.getNodeName());
         serverService.persistServerOnline();
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/hostName"), is(localHostService.getHostName()));
-        assertFalse(getRegistryCenter().isExisted("/testJob/servers/" + localHostService.getIp() + "/disabled"));
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/status"), is(ServerStatus.READY.name()));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/hostName"), is(jobNodeService.getHostName()));
+        assertFalse(getRegistryCenter().isExisted("/testJob/servers/" + jobNodeService.getNodeName() + "/disabled"));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/status"), is(ServerStatus.READY.name()));
     }
     
     @Test
     public void assertPersistServerOnlineWhenOverwrite() {
         ServerService serverServiceForOverwrite = new ServerService(getRegistryCenter(), createJobConfigurationForOverwrite());
         serverServiceForOverwrite.persistServerOnline();
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/hostName"), is(localHostService.getHostName()));
-        assertTrue(getRegistryCenter().isExisted("/testJob/servers/" + localHostService.getIp() + "/disabled"));
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/status"), is(ServerStatus.READY.name()));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/hostName"), is(jobNodeService.getHostName()));
+        assertTrue(getRegistryCenter().isExisted("/testJob/servers/" + jobNodeService.getNodeName() + "/disabled"));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/status"), is(ServerStatus.READY.name()));
     }
     
     private JobConfiguration createJobConfigurationForOverwrite() {
@@ -91,14 +88,14 @@ public final class ServerServiceTest extends AbstractBaseJobTest {
     
     @Test
     public void assertClearJobStopedStatus() {
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/stoped", "");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/stoped", "");
         serverService.clearJobStopedStatus();
-        assertFalse(getRegistryCenter().isExisted("/testJob/servers/" + localHostService.getIp() + "/stoped"));
+        assertFalse(getRegistryCenter().isExisted("/testJob/servers/" + jobNodeService.getNodeName() + "/stoped"));
     }
     
     @Test
     public void assertIsJobStopedManually() {
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/stoped", "");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/stoped", "");
         assertTrue(serverService.isJobStopedManually());
     }
     
@@ -109,9 +106,9 @@ public final class ServerServiceTest extends AbstractBaseJobTest {
     
     @Test
     public void assertUpdateServerStatus() {
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/status", ServerStatus.READY.name());
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/status", ServerStatus.READY.name());
         serverService.updateServerStatus(ServerStatus.RUNNING);
-        assertThat(getRegistryCenter().getDirectly("/testJob/servers/" + localHostService.getIp() + "/status"), is(ServerStatus.RUNNING.name()));
+        assertThat(getRegistryCenter().getDirectly("/testJob/servers/" + jobNodeService.getNodeName() + "/status"), is(ServerStatus.RUNNING.name()));
     }
     
     @Test
@@ -136,43 +133,43 @@ public final class ServerServiceTest extends AbstractBaseJobTest {
     
     @Test
     public void assertIsServerReadyWhenServerDisabled() {
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/disabled", "");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/disabled", "");
         assertFalse(serverService.isServerReady());
     }
     
     @Test
     public void assertIsServerReadyWhenServerStoped() {
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/stoped", "");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/stoped", "");
         assertFalse(serverService.isServerReady());
     }
     
     @Test
     public void assertIsServerReadyWhenServerCrashed() {
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp(), "");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName(), "");
         assertFalse(serverService.isServerReady());
     }
     
     @Test
     public void assertIsServerReadyWhenServerRunning() {
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/status", ServerStatus.RUNNING.name());
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/status", ServerStatus.RUNNING.name());
         assertFalse(serverService.isServerReady());
     }
     
     @Test
     public void assertIsServerReadyWhenServerReady() {
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/status", ServerStatus.READY.name());
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/status", ServerStatus.READY.name());
         assertTrue(serverService.isServerReady());
     }
     
     @Test
     public void assertPersistProcessSuccessCount() {
         serverService.persistProcessSuccessCount(100);
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/processSuccessCount"), is("100"));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/processSuccessCount"), is("100"));
     }
     
     @Test
     public void assertPersistProcessFailureCount() {
         serverService.persistProcessFailureCount(10);
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/processFailureCount"), is("10"));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/processFailureCount"), is("10"));
     }
 }

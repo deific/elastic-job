@@ -22,6 +22,8 @@ import org.junit.Before;
 
 import com.dangdang.ddframe.job.api.JobConfiguration;
 import com.dangdang.ddframe.job.api.JobExecutionMultipleShardingContext;
+import com.dangdang.ddframe.job.internal.env.JobNodeService;
+import com.dangdang.ddframe.job.internal.env.LocalJobNodeService;
 import com.dangdang.ddframe.job.internal.job.AbstractElasticJob;
 import com.dangdang.ddframe.reg.base.CoordinatorRegistryCenter;
 import com.dangdang.ddframe.reg.zookeeper.ZookeeperConfiguration;
@@ -36,11 +38,14 @@ public abstract class AbstractBaseJobTest {
     
     private final JobConfiguration jobConfiguration = createJobConfiguration();
     
+    protected JobNodeService jobNodeService;
+    
     @Before
     public final void initRegistryCenter() throws Exception {
         NestedZookeeperServers.getInstance().startServerIfNotStarted();
         regCenter.init();
         regCenter.persist("/testJob", "");
+        jobNodeService = new LocalJobNodeService(getRegistryCenter());
     }
     
     private JobConfiguration createJobConfiguration() {

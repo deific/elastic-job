@@ -24,13 +24,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.dangdang.ddframe.job.internal.AbstractBaseJobTest;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
 import com.dangdang.ddframe.test.WaitingUtils;
 
 public final class FailoverListenerManagerTest extends AbstractBaseJobTest {
     
-    private final LocalHostService localHostService = new RealLocalHostService();
     
     private final FailoverListenerManager failoverListenerManager = new FailoverListenerManager(getRegistryCenter(), getJobConfig());
     
@@ -79,7 +76,7 @@ public final class FailoverListenerManagerTest extends AbstractBaseJobTest {
     public void assertListenFailoverJobCrashedWhenNotFailover() {
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.FALSE.toString());
         getRegistryCenter().persist("/testJob/config/failover", Boolean.FALSE.toString());
-        getRegistryCenter().persist("/testJob/execution/0/failover", localHostService.getIp());
+        getRegistryCenter().persist("/testJob/execution/0/failover", jobNodeService.getNodeName());
         WaitingUtils.waitingShortTime();
         getRegistryCenter().remove("/testJob/execution/0/failover");
         WaitingUtils.waitingShortTime();
@@ -90,7 +87,7 @@ public final class FailoverListenerManagerTest extends AbstractBaseJobTest {
     public void assertListenFailoverJobCrashedWhenFailoverAndItemCompleted() {
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.TRUE.toString());
         getRegistryCenter().persist("/testJob/config/failover", Boolean.TRUE.toString());
-        getRegistryCenter().persist("/testJob/execution/0/failover", localHostService.getIp());
+        getRegistryCenter().persist("/testJob/execution/0/failover", jobNodeService.getNodeName());
         getRegistryCenter().persist("/testJob/execution/0/completed", "");
         WaitingUtils.waitingShortTime();
         getRegistryCenter().remove("/testJob/execution/0/failover");
@@ -102,7 +99,7 @@ public final class FailoverListenerManagerTest extends AbstractBaseJobTest {
     public void assertListenFailoverJobCrashedWhenFailoverAndItemUncompleted() {
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.TRUE.toString());
         getRegistryCenter().persist("/testJob/config/failover", Boolean.TRUE.toString());
-        getRegistryCenter().persist("/testJob/execution/0/failover", localHostService.getIp());
+        getRegistryCenter().persist("/testJob/execution/0/failover", jobNodeService.getNodeName());
         WaitingUtils.waitingShortTime();
         getRegistryCenter().remove("/testJob/execution/0/failover");
         WaitingUtils.waitingShortTime();

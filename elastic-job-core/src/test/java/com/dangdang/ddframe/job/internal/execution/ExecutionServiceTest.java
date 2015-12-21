@@ -35,8 +35,6 @@ import com.dangdang.ddframe.job.api.JobExecutionMultipleShardingContext;
 import com.dangdang.ddframe.job.api.JobScheduler;
 import com.dangdang.ddframe.job.internal.AbstractBaseJobTest;
 import com.dangdang.ddframe.job.internal.election.LeaderElectionService;
-import com.dangdang.ddframe.job.internal.env.LocalHostService;
-import com.dangdang.ddframe.job.internal.env.RealLocalHostService;
 import com.dangdang.ddframe.job.internal.schedule.JobRegistry;
 import com.dangdang.ddframe.job.internal.server.ServerStatus;
 import com.dangdang.ddframe.job.internal.statistics.ProcessCountStatistics;
@@ -44,7 +42,6 @@ import com.dangdang.ddframe.test.WaitingUtils;
 
 public final class ExecutionServiceTest extends AbstractBaseJobTest {
     
-    private final LocalHostService localHostService = new RealLocalHostService();
     
     private final LeaderElectionService leaderElectionService = new LeaderElectionService(getRegistryCenter(), getJobConfig());
     
@@ -66,7 +63,7 @@ public final class ExecutionServiceTest extends AbstractBaseJobTest {
         JobExecutionMultipleShardingContext jobExecutionShardingContext = new JobExecutionMultipleShardingContext();
         jobExecutionShardingContext.setShardingItems(Collections.<Integer>emptyList());
         executionService.registerJobBegin(jobExecutionShardingContext);
-        assertFalse(getRegistryCenter().isExisted("/testJob/servers/" + localHostService.getIp() + "/status"));
+        assertFalse(getRegistryCenter().isExisted("/testJob/servers/" + jobNodeService.getNodeName() + "/status"));
         assertFalse(getRegistryCenter().isExisted("/testJob/execution/0/running"));
         assertFalse(getRegistryCenter().isExisted("/testJob/execution/1/running"));
         assertFalse(getRegistryCenter().isExisted("/testJob/execution/2/running"));
@@ -75,11 +72,11 @@ public final class ExecutionServiceTest extends AbstractBaseJobTest {
     @Test
     public void assertRegisterJobBeginWhenNotMonitorExecution() {
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.FALSE.toString());
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/status", ServerStatus.READY.name());
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/status", ServerStatus.READY.name());
         JobExecutionMultipleShardingContext jobExecutionShardingContext = new JobExecutionMultipleShardingContext();
         jobExecutionShardingContext.setShardingItems(Arrays.asList(0, 1, 2));
         executionService.registerJobBegin(jobExecutionShardingContext);
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/status"), is(ServerStatus.READY.name()));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/status"), is(ServerStatus.READY.name()));
         assertFalse(getRegistryCenter().isExisted("/testJob/execution/0/running"));
         assertFalse(getRegistryCenter().isExisted("/testJob/execution/1/running"));
         assertFalse(getRegistryCenter().isExisted("/testJob/execution/2/running"));
@@ -88,11 +85,11 @@ public final class ExecutionServiceTest extends AbstractBaseJobTest {
     @Test
     public void assertRegisterJobBegin() {
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.TRUE.toString());
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/status", "");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/status", "");
         JobExecutionMultipleShardingContext jobExecutionShardingContext = new JobExecutionMultipleShardingContext();
         jobExecutionShardingContext.setShardingItems(Arrays.asList(0, 1, 2));
         executionService.registerJobBegin(jobExecutionShardingContext);
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/status"), is(ServerStatus.RUNNING.name()));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/status"), is(ServerStatus.RUNNING.name()));
         assertTrue(getRegistryCenter().isExisted("/testJob/execution/0/running"));
         assertTrue(getRegistryCenter().isExisted("/testJob/execution/1/running"));
         assertTrue(getRegistryCenter().isExisted("/testJob/execution/2/running"));
@@ -107,24 +104,24 @@ public final class ExecutionServiceTest extends AbstractBaseJobTest {
     @Test
     public void assertRegisterJobCompletedWhenNotMonitorExecution() {
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.FALSE.toString());
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/status", ServerStatus.READY.name());
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/status", ServerStatus.READY.name());
         JobExecutionMultipleShardingContext jobExecutionShardingContext = new JobExecutionMultipleShardingContext();
         jobExecutionShardingContext.setShardingItems(Arrays.asList(0, 1, 2));
         executionService.registerJobBegin(jobExecutionShardingContext);
         executionService.registerJobCompleted(jobExecutionShardingContext);
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/status"), is(ServerStatus.READY.name()));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/status"), is(ServerStatus.READY.name()));
         assertFalse(getRegistryCenter().isExisted("/testJob/execution"));
     }
     
     @Test
     public void assertRegisterJobCompleted() {
         getRegistryCenter().persist("/testJob/config/monitorExecution", Boolean.TRUE.toString());
-        getRegistryCenter().persist("/testJob/servers/" + localHostService.getIp() + "/status", "");
+        getRegistryCenter().persist("/testJob/servers/" + jobNodeService.getNodeName() + "/status", "");
         JobExecutionMultipleShardingContext jobExecutionShardingContext = new JobExecutionMultipleShardingContext();
         jobExecutionShardingContext.setShardingItems(Arrays.asList(0, 1, 2));
         executionService.registerJobBegin(jobExecutionShardingContext);
         executionService.registerJobCompleted(jobExecutionShardingContext);
-        assertThat(getRegistryCenter().get("/testJob/servers/" + localHostService.getIp() + "/status"), is(ServerStatus.READY.name()));
+        assertThat(getRegistryCenter().get("/testJob/servers/" + jobNodeService.getNodeName() + "/status"), is(ServerStatus.READY.name()));
         assertTrue(getRegistryCenter().isExisted("/testJob/execution/0/completed"));
         assertTrue(getRegistryCenter().isExisted("/testJob/execution/1/completed"));
         assertTrue(getRegistryCenter().isExisted("/testJob/execution/2/completed"));
