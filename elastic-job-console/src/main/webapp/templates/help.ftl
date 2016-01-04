@@ -1,7 +1,7 @@
 <#import "tags/dashboard.ftl" as dashboard>
 <h2>设计理念</h2>
 <ol>
-    <li>本控制台和Elastic Job并无直接关系，是通过读取Elastic Job的注册中心数据展现作业状态，或更新注册中心数据修改全局配置。</li>
+    <li>本控制台和Dpc Job并无直接关系，是通过读取Dpc Job的注册中心数据展现作业状态，或更新注册中心数据修改全局配置。</li>
     <li>控制台只能控制作业本身是否运行，但不能控制作业进程的启停，因为控制台和作业本身服务器是完全分布式的，控制台并不能控制作业服务器。</li>
 </ol>
 <h2>主要功能</h2>
@@ -19,8 +19,8 @@
 </ol>
 <h2>操作问题</h2>
 <ol>
-    <li>Q：如何添加作业？<br />A：直接在作业服务器启动包含Elastic Job的作业进程即可。</li>
-    <li>Q：如何删除作业？<br />A：关闭所有要删除的Elastic Job的运行进程，之后登录Zookeeper手工删除作业名称节点。Zookeeper的目录结构和参见使用文档。</li>
+    <li>Q：如何添加作业？<br />A：直接在作业服务器启动包含Dpc Job的作业进程即可。</li>
+    <li>Q：如何删除作业？<br />A：关闭所有要删除的Dpc Job的运行进程，之后登录Zookeeper手工删除作业名称节点。Zookeeper的目录结构和参见使用文档。</li>
 </ol>
 <@dashboard.successDialog "success-dialog" />
 <@dashboard.failureDialog "connect-reg-center-failure-dialog" "连接失败，请检查注册中心配置" />
