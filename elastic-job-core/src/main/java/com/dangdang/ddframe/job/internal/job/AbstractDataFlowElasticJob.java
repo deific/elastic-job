@@ -43,27 +43,33 @@ public abstract class AbstractDataFlowElasticJob<T, C extends AbstractJobExecuti
     }
     
     protected final void processDataWithStatistics(final C shardingContext, final List<T> data) {
-        T lastSuccessData = null;
-    	for (T each : data) {
-            boolean isSuccess = false;
-            try {
-                isSuccess = processData(shardingContext, each);
-            // CHECKSTYLE:OFF
-            } catch (final Exception ex) {
-            // CHECKSTYLE:ON
-                ProcessCountStatistics.incrementProcessFailureCount(shardingContext.getJobName());
-                log.error("Elastic job: exception occur in job processing...", ex);
-                continue;
+    	T lastSuccessData = null;
+    	try {
+        	for (T each : data) {
+                boolean isSuccess = false;
+                try {
+                    isSuccess = processData(shardingContext, each);
+                // CHECKSTYLE:OFF
+                } catch (final Exception ex) {
+                // CHECKSTYLE:ON
+                    ProcessCountStatistics.incrementProcessFailureCount(shardingContext.getJobName());
+                    log.error("Elastic job: exception occur in job processing...", ex);
+                    continue;
+                }
+                if (isSuccess) {
+                    ProcessCountStatistics.incrementProcessSuccessCount(shardingContext.getJobName());
+                    lastSuccessData = each;
+                } else {
+                    ProcessCountStatistics.incrementProcessFailureCount(shardingContext.getJobName());
+                    break;
+                }
             }
-            if (isSuccess) {
-                ProcessCountStatistics.incrementProcessSuccessCount(shardingContext.getJobName());
-                lastSuccessData = each;
-            } else {
-                ProcessCountStatistics.incrementProcessFailureCount(shardingContext.getJobName());
-                break;
-            }
-        }
-        // 更新偏移偏移量
+            
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    		log.error("Elastic job:job processing error，{}", e);
+    	}
+    	// 更新偏移偏移量
     	updateSharingItemDataOffset(shardingContext, lastSuccessData);
     }
     /**

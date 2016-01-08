@@ -140,6 +140,5 @@ public abstract class AbstractSequenceDataFlowElasticJob<T> extends AbstractData
     }
     
 	public void updateSharingItemDataOffset(JobExecutionSingleShardingContext shardingContext, T data) {
-		
 	}
 }

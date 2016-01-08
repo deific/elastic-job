@@ -65,6 +65,16 @@ public final class ConfigurationNode {
     }
     
     /**
+     * 是否新增配置
+     * 如果是根节点变化，任务级的变化
+     * @param path
+     * @return
+     */
+    public boolean isNewConfiguration(final String path) {
+    	return jobNodePath.getFullPath(ROOT).equals(path);
+    }
+    
+    /**
      * 判断是否为作业分片总数路径.
      * 
      * @param path 节点路径
