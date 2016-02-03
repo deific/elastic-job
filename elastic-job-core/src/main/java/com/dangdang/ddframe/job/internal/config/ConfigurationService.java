@@ -37,7 +37,7 @@ import lombok.extern.slf4j.Slf4j;
  * @author zhangliang
  */
 @Slf4j
-public final class ConfigurationService {
+public class ConfigurationService {
     
     private final JobNodeStorage jobNodeStorage;
     
@@ -79,6 +79,7 @@ public final class ConfigurationService {
         jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.MISFIRE, jobNodeStorage.getJobConfiguration().isMisfire());
         jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.JOB_SHARDING_STRATEGY_CLASS, jobNodeStorage.getJobConfiguration().getJobShardingStrategyClass());
         jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.DESCRIPTION, jobNodeStorage.getJobConfiguration().getDescription());
+        jobNodeStorage.fillJobNodeIfNullOrOverwrite(ConfigurationNode.MONITOR_PORT, jobNodeStorage.getJobConfiguration().getMonitorPort());
     }
     
     /**
@@ -219,5 +220,24 @@ public final class ConfigurationService {
      */
     public String getJobShardingStrategyClass() {
         return jobNodeStorage.getJobNodeData(ConfigurationNode.JOB_SHARDING_STRATEGY_CLASS);
+    }
+    
+    /**
+     * 获取作业监控端口.
+     * 
+     * @return 作业监控端口
+     */
+    public int getMonitorPort() {
+        return Integer.valueOf(jobNodeStorage.getJobNodeData(ConfigurationNode.MONITOR_PORT));
+    }
+    
+
+    /**
+     * 获取作业名称.
+     * 
+     * @return 作业名称
+     */
+    public String getJobName() {
+        return jobNodeStorage.getJobConfiguration().getJobName();
     }
 }

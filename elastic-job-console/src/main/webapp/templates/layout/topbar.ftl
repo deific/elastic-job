@@ -8,21 +8,20 @@
         <ul class="nav navbar-top-links navbar-right">
             <li class="welcome-message">
                 <span class="m-r-sm text-muted">
-                    <a href="https://github.com/qq254963746/light-task-scheduler" target="_blank"><span class="label label-info"><i class="fa fa-github"></i> github</span></a>
-                    <a href="http://git.oschina.net/hugui/light-task-scheduler" target="_blank"><span class="label label-info"><i class="fa fa-users"></i> oschina</span></a>
+                    <a href="" target="_blank"><i class="fa fa-envelope"></i> </span></a>
                 </span>
             </li>
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown"
                    href="#">
-                    <img class="img-circle" style="width:30px;" src="assets/img/avatar.jpeg">
-                    <span>管理员</span>
+                    <img class="img-circle" style="width:30px;" src="${base}/assets/img/avatar.jpeg">
+                    <span><@principal></@principal></span>
                 </a>
                 <ul class="dropdown-menu">
                     <li><a href="#">我的应用</a></li>
                     <li class="divider"></li>
                     <li>
-                        <a href="#">退出</a>
+                        <a href="./logout">退出</a>
                     </li>
                 </ul>
             </li>

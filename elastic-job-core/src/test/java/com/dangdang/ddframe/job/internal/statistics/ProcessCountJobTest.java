@@ -34,10 +34,10 @@ public final class ProcessCountJobTest extends AbstractBaseJobTest {
     
     @Before
     public void setUp() {
-        ProcessCountStatistics.incrementProcessSuccessCount("testJob");
-        ProcessCountStatistics.incrementProcessSuccessCount("otherTestJob");
-        ProcessCountStatistics.incrementProcessFailureCount("testJob");
-        ProcessCountStatistics.incrementProcessFailureCount("otherTestJob");
+        ProcessCountStatistics.incrementProcessSuccessCount("testJob", 1);
+        ProcessCountStatistics.incrementProcessSuccessCount("otherTestJob", 1);
+        ProcessCountStatistics.incrementProcessFailureCount("testJob", 1);
+        ProcessCountStatistics.incrementProcessFailureCount("otherTestJob", 1);
     }
     
     @Test

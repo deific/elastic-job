@@ -1,19 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.dangdang</groupId>
+    <groupId>com.myzh</groupId>
     <artifactId>elastic-job</artifactId>
     <version>1.0.4</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description>Elastic-Job - distributed scheduled job solution</description>
     
-    <modules>
-        <module>elastic-job-core</module>
-        <module>elastic-job-spring</module>
-        <module>elastic-job-test</module>
-        <module>elastic-job-console</module>
-        <module>elastic-job-tracker</module>
-    </modules>
     
     <properties>
     	<elastic.job.version>1.0.4</elastic.job.version>
@@ -27,10 +20,10 @@
         <commons-beanutils.version>1.9.2</commons-beanutils.version>
         <quartz.version>2.2.1</quartz.version>
         <curator.version>2.8.0</curator.version>
-        <springframework.version>4.1.1.RELEASE</springframework.version>
+        <springframework.version>4.2.4.RELEASE</springframework.version>
         <slf4j.version>1.7.7</slf4j.version>
         <logback.version>1.1.2</logback.version>
-        <jackson.version>2.4.4</jackson.version>
+        <jackson.version>2.6.4</jackson.version>
         <freemarker.version>2.3.20</freemarker.version>
         <sitemesh.version>2.4.2</sitemesh.version>
         <commons-codec.version>1.10</commons-codec.version>
@@ -500,4 +493,12 @@
 			<url>http://${rep.ip}:9091/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
+    <modules>
+    	<module>elastic-job-console</module>
+    	<module>elastic-job-core</module>
+    	<module>elastic-job-example</module>
+    	<module>elastic-job-model</module>
+    	<module>elastic-job-spring</module>
+    	<module>elastic-job-tracker</module>
+    </modules>
 </project>

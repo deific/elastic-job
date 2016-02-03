@@ -75,7 +75,7 @@ public final class FailoverServiceTest extends AbstractBaseJobTest {
         getRegistryCenter().persist("/testJob/leader/failover/items/1", "");
         JobScheduler jobScheduler = new JobScheduler(getRegistryCenter(), getJobConfig());
         jobScheduler.init();
-        JobRegistry.getInstance().addJob("testJob", jobScheduler);
+        JobRegistry.getInstance().addJobScheduler("testJob", jobScheduler);
         failoverService.failoverIfNecessary();
         jobScheduler.stopJob();
         jobScheduler.shutdown();

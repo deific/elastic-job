@@ -111,18 +111,6 @@ public final class ShardingService {
         log.debug("Elastic job: sharding completed.");
     }
     
-    private void clearShardingInfo() {
-        for (String each : serverService.getAllServers()) {
-            jobNodeStorage.removeJobNodeIfExisted(ShardingNode.getShardingNode(each));
-        }
-    }
-    
-    private void persistShardingInfo(final Map<String, List<Integer>> shardingItems) {
-        for (Entry<String, List<Integer>> entry : shardingItems.entrySet()) {
-            jobNodeStorage.replaceJobNode(ShardingNode.getShardingNode(entry.getKey()), ItemUtils.toItemsString(entry.getValue()));
-        }
-    }
-    
     private void blockUntilShardingCompleted() {
         while (jobNodeStorage.isJobNodeExisted(ShardingNode.NECESSARY) || jobNodeStorage.isJobNodeExisted(ShardingNode.PROCESSING)) {
             log.debug("Elastic job: sleep short time until sharding completed.");
@@ -134,6 +122,18 @@ public final class ShardingService {
         while (executionService.hasRunningItems()) {
             log.debug("Elastic job: sleep short time until other job completed.");
             BlockUtils.waitingShortTime();
+        }
+    }
+    
+    private void clearShardingInfo() {
+        for (String each : serverService.getAllServers()) {
+            jobNodeStorage.removeJobNodeIfExisted(ShardingNode.getShardingNode(each));
+        }
+    }
+    
+    private void persistShardingInfo(final Map<String, List<Integer>> shardingItems) {
+        for (Entry<String, List<Integer>> entry : shardingItems.entrySet()) {
+            jobNodeStorage.replaceJobNode(ShardingNode.getShardingNode(entry.getKey()), ItemUtils.toItemsString(entry.getValue()));
         }
     }
     

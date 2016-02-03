@@ -21,6 +21,7 @@ import com.myzh.dpc.console.job.domain.JobSettings;
 import com.myzh.dpc.console.job.repository.zookeeper.CuratorRepository;
 import com.myzh.dpc.console.job.service.JobDimensionService;
 import com.myzh.dpc.console.job.util.JobNodePath;
+import com.google.common.base.Strings;
 
 @Service
 public class JobDimensionServiceImpl implements JobDimensionService {
@@ -83,6 +84,10 @@ public class JobDimensionServiceImpl implements JobDimensionService {
         result.setConcurrentDataProcessThreadCount(Integer.parseInt(curatorRepository.getData(JobNodePath.getConfigNodePath(jobName, "concurrentDataProcessThreadCount"))));
         result.setFetchDataCount(Integer.parseInt(curatorRepository.getData(JobNodePath.getConfigNodePath(jobName, "fetchDataCount"))));
         result.setMaxTimeDiffSeconds(Integer.parseInt(curatorRepository.getData(JobNodePath.getConfigNodePath(jobName, "maxTimeDiffSeconds"))));
+        String monitorPort = curatorRepository.getData(JobNodePath.getConfigNodePath(jobName, "monitorPort"));
+        if (!Strings.isNullOrEmpty(monitorPort)) {
+            result.setMonitorPort(Integer.parseInt(monitorPort));
+        }
         result.setFailover(Boolean.valueOf(curatorRepository.getData(JobNodePath.getConfigNodePath(jobName, "failover"))));
         result.setMisfire(Boolean.valueOf(curatorRepository.getData(JobNodePath.getConfigNodePath(jobName, "misfire"))));
         result.setJobShardingStrategyClass(curatorRepository.getData(JobNodePath.getConfigNodePath(jobName, "jobShardingStrategyClass")));
@@ -101,6 +106,7 @@ public class JobDimensionServiceImpl implements JobDimensionService {
         updateIfchanged(jobSettings.getJobName(), "concurrentDataProcessThreadCount", jobSettings.getConcurrentDataProcessThreadCount());
         updateIfchanged(jobSettings.getJobName(), "fetchDataCount", jobSettings.getFetchDataCount());
         updateIfchanged(jobSettings.getJobName(), "maxTimeDiffSeconds", jobSettings.getMaxTimeDiffSeconds());
+        updateIfchanged(jobSettings.getJobName(), "monitorPort", jobSettings.getMonitorPort());
         updateIfchanged(jobSettings.getJobName(), "failover", jobSettings.isFailover());
         updateIfchanged(jobSettings.getJobName(), "misfire", jobSettings.isMisfire());
         updateIfchanged(jobSettings.getJobName(), "jobShardingStrategyClass", jobSettings.getJobShardingStrategyClass());

@@ -40,8 +40,8 @@ public final class ProcessCountJob implements Runnable {
     @Override
     public void run() {
         String jobName = jobConfiguration.getJobName();
-        serverService.persistProcessSuccessCount(ProcessCountStatistics.getProcessSuccessCount(jobName));
-        serverService.persistProcessFailureCount(ProcessCountStatistics.getProcessFailureCount(jobName));
-        ProcessCountStatistics.reset(jobName);
+        serverService.persistProcessSuccessCount(ProcessCountStatistics.getProcessSuccessCountAndReset(jobName));
+        serverService.persistProcessFailureCount(ProcessCountStatistics.getProcessFailureCountAndReset(jobName));
+        serverService.persistFetchDataCount(ProcessCountStatistics.getFetchDataCountAndReset(jobName));
     }
 }

@@ -65,7 +65,8 @@ public abstract class AbstractThroughputDataFlowElasticJob<T> extends AbstractDa
     }
     
     private List<T> fetchDataWithLog(final JobExecutionMultipleShardingContext shardingContext) {
-        List<T> result = fetchData(shardingContext);
+    	List<T> result = fetchDataWithStatistics(shardingContext);
+//        List<T> result = fetchData(shardingContext);
         log.debug("Elastic job: fetch data size: {}.", result != null ? result.size() : 0);
         return result;
     }

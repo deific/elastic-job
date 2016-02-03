@@ -26,29 +26,29 @@ public final class ProcessCountStatisticsTest {
     
     @Test
     public void assertProcessSuccessCount() {
-        ProcessCountStatistics.incrementProcessSuccessCount("testJob");
-        ProcessCountStatistics.incrementProcessSuccessCount("testJob");
-        assertThat(ProcessCountStatistics.getProcessSuccessCount("testJob"), is(2));
-        assertThat(ProcessCountStatistics.getProcessSuccessCount("otherJob"), is(0));
+        ProcessCountStatistics.incrementProcessSuccessCount("testJob", 1);
+        ProcessCountStatistics.incrementProcessSuccessCount("testJob", 1);
+        assertThat(ProcessCountStatistics.getProcessSuccessCountAndReset("testJob"), is(2));
+        assertThat(ProcessCountStatistics.getProcessSuccessCountAndReset("otherJob"), is(0));
     }
     
     @Test
     public void assertProcessFailureCount() {
-        ProcessCountStatistics.incrementProcessFailureCount("testJob");
-        ProcessCountStatistics.incrementProcessFailureCount("testJob");
-        assertThat(ProcessCountStatistics.getProcessFailureCount("testJob"), is(2));
-        assertThat(ProcessCountStatistics.getProcessFailureCount("otherJob"), is(0));
+        ProcessCountStatistics.incrementProcessFailureCount("testJob", 1);
+        ProcessCountStatistics.incrementProcessFailureCount("testJob", 1);
+        assertThat(ProcessCountStatistics.getProcessFailureCountAndReset("testJob"), is(2));
+        assertThat(ProcessCountStatistics.getProcessFailureCountAndReset("otherJob"), is(0));
     }
     
     @Test
     public void assertReset() {
-        ProcessCountStatistics.incrementProcessSuccessCount("testJob");
-        ProcessCountStatistics.incrementProcessFailureCount("testJob");
+        ProcessCountStatistics.incrementProcessSuccessCount("testJob", 1);
+        ProcessCountStatistics.incrementProcessFailureCount("testJob", 1);
         ProcessCountStatistics.reset("testJob");
         ProcessCountStatistics.reset("otherJob");
-        assertThat(ProcessCountStatistics.getProcessSuccessCount("testJob"), is(0));
-        assertThat(ProcessCountStatistics.getProcessSuccessCount("otherJob"), is(0));
-        assertThat(ProcessCountStatistics.getProcessFailureCount("testJob"), is(0));
-        assertThat(ProcessCountStatistics.getProcessFailureCount("otherJob"), is(0));
+        assertThat(ProcessCountStatistics.getProcessSuccessCountAndReset("testJob"), is(0));
+        assertThat(ProcessCountStatistics.getProcessSuccessCountAndReset("otherJob"), is(0));
+        assertThat(ProcessCountStatistics.getProcessFailureCountAndReset("testJob"), is(0));
+        assertThat(ProcessCountStatistics.getProcessFailureCountAndReset("otherJob"), is(0));
     }
 }

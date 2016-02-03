@@ -33,7 +33,7 @@ import com.dangdang.ddframe.reg.base.CoordinatorRegistryCenter;
  * @author zhangliang
  */
 @Slf4j
-public final class LeaderElectionService {
+public class LeaderElectionService {
     
     private final JobNodeService jobNodeService;
     
@@ -48,15 +48,7 @@ public final class LeaderElectionService {
      * 选举主节点.
      */
     public void leaderElection() {
-        jobNodeStorage.executeInLeader(ElectionNode.LATCH, new LeaderExecutionCallback() {
-            
-            @Override
-            public void execute() {
-                if (!jobNodeStorage.isJobNodeExisted(ElectionNode.LEADER_HOST)) {
-                    jobNodeStorage.fillEphemeralJobNode(ElectionNode.LEADER_HOST, jobNodeService.getNodeName());
-                }
-            }
-        });
+        jobNodeStorage.executeInLeader(ElectionNode.LATCH, new LeaderElectionExecutionCallback());
     }
     
     /**
@@ -89,5 +81,15 @@ public final class LeaderElectionService {
      */
     public boolean hasLeader() {
         return jobNodeStorage.isJobNodeExisted(ElectionNode.LEADER_HOST);
+    }
+    
+    class LeaderElectionExecutionCallback implements LeaderExecutionCallback {
+        
+        @Override
+        public void execute() {
+            if (!jobNodeStorage.isJobNodeExisted(ElectionNode.LEADER_HOST)) {
+                jobNodeStorage.fillEphemeralJobNode(ElectionNode.LEADER_HOST, jobNodeService.getNodeName());
+            }
+        }
     }
 }

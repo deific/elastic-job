@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:context="http://www.springframework.org/schema/context" 
+    xmlns:mvc="http://www.springframework.org/schema/mvc" 
+    xmlns:p="http://www.springframework.org/schema/p" 
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/mvc 
+                        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                        ">
+                        
+   
+    <!-- 对静态资源文件的访问，交给default servlet handler处理 -->  
+    <mvc:default-servlet-handler/> 
+    
+    <!-- 启用spring mvc 注解 -->  
+    <context:annotation-config /> 
+    
+    <!-- 设置使用注解的类所在的包 --> 
+    <context:component-scan base-package="com.myzh.dpc.console"/>
+    <!-- 默认的注解映射的支持 -->  
+    <mvc:annotation-driven>
+    	<mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="objectMapper" ref="objectMapper" />
+			</bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    
+    <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
+		<property name="dateFormat">
+			<bean class="java.text.SimpleDateFormat">
+				<constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />
+			</bean>
+		</property>
+	</bean>
+	
+    <!-- 完成请求和注解POJO的映射 -->  
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
+      
+    <!-- 指定自己定义的validator -->  
+    <mvc:annotation-driven validator="validator"/>
+    <!-- 以下 validator ConversionService 在使用 mvc:annotation-driven 会 自动注册 -->  
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">  
+        <property name="providerClass" value="org.hibernate.validator.HibernateValidator"/>  
+        <!-- 如果不加默认到 使用classpath下的 ValidationMessages.properties -->  
+        <property name="validationMessageSource" ref="messageSource"/>  
+    </bean>  
+    
+    <!-- 国际化的消息资源文件（本系统中主要用于显示/错误消息定制） -->  
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">  
+        <property name="basenames">  
+            <list>  
+                <!-- 在web环境中一定要定位到classpath 否则默认到当前web应用下找 -->  
+                <value>classpath:i18n/message</value>
+                <value>classpath:i18n/validator</value>  
+            </list>  
+        </property>  
+        <property name="useCodeAsDefaultMessage" value="false"/>  
+        <property name="defaultEncoding" value="UTF-8"/>  
+        <property name="cacheSeconds" value="60"/>  
+    </bean> 
+    <mvc:interceptors>  
+        <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>  
+    </mvc:interceptors> 
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">  
+        <property name="defaultLocale" value="zh_CN"/>  
+    </bean>
+    
+    <!-- Zookeeper会话拦截器 -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/job/**"/>
+            <bean class="com.myzh.dpc.console.job.interceptor.CuratorSessionClientInterceptor" />
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/server/**"/>
+            <bean class="com.myzh.dpc.console.job.interceptor.CuratorSessionClientInterceptor" />
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>

@@ -58,6 +58,8 @@ public final class ConfigurationNode {
     
     static final String DESCRIPTION = ROOT + "/description";
     
+    static final String MONITOR_PORT = ROOT + "/monitorPort";
+    
     private final JobNodePath jobNodePath;
     
     public ConfigurationNode(final String jobName) {
@@ -65,13 +67,13 @@ public final class ConfigurationNode {
     }
     
     /**
-     * 是否新增配置
-     * 如果是根节点变化，任务级的变化
-     * @param path
-     * @return
+     * 判断是否为新注册配置.
+     * 
+     * @param path 节点路径
+     * @return 是否为作业分片总数路径
      */
     public boolean isNewConfiguration(final String path) {
-    	return jobNodePath.getFullPath(ROOT).equals(path);
+        return jobNodePath.getFullPath(ROOT).equals(path);
     }
     
     /**

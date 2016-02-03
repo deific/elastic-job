@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper  
+PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"  
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="com.myzh.dpc.console.point.dao.PointDao">
+	<!-- mapping -->
+	 <resultMap id="UserPoint" type="com.myzh.dcp.model.point.entity.UserPoint">
+	 </resultMap>
+	 <resultMap id="UserPointDetail" type="com.myzh.dcp.model.point.entity.UserPointDetail">
+	 </resultMap>
+	 <resultMap id="PointRule" type="com.myzh.dcp.model.point.entity.PointRule">
+	 </resultMap>
+	 
+	
+	<select id="getUserPoint" parameterType="String" resultMap="UserPoint">
+	    SELECT p.*,g.`grade` FROM (
+		    SELECT * FROM t_user_point t 
+		    <where>
+		         1=1
+		        <if test="userId !=null and userId!=''">
+		            AND t.user_id=#{userId}
+		        </if>
+		        <if test="clinicCode !=null and clinicCode!=''">
+		            AND clinic_code=#{clinicCode}
+		        </if>
+		    </where>
+		) p LEFT JOIN `t_user_grade` g ON p.user_id=g.user_id;
+	</select>
+	
+	<select id="queryUserPointList" parameterType="String" resultMap="UserPoint">
+	    SELECT * FROM t_user_point t 
+	    <where>
+	         1=1
+	        <if test="userId !=null and userId!=''">
+	            AND t.user_id=#{userId}
+	        </if>
+	        <if test="clinicCode !=null and clinicCode!=''">
+	            AND clinic_code=#{clinicCode}
+	        </if>
+	    </where>
+	    order by all_point desc
+	</select>
+	<insert id="saveUserPoint">
+		insert into t_user_point(area_code,agent_code,clinic_code,user_type,user_id,all_point,year,create_time,update_time)
+		values(#{areaCode}, #{agentCode},#{clinicCode}, #{userType},#{userId}, #{allPoint},#{year},#{createTime},#{updateTime})
+	</insert>
+	<update id="updateUserPoint" >
+	    update t_user_point set 
+		all_point=#{allPoint},
+		update_time=#{updateTime} 
+		where id=#{id}
+	</update>
+	
+	<select id="getUserPointDetails" parameterType="String" resultMap="UserPointDetail">
+	    SELECT * FROM t_user_point_detail t 
+	    <where>
+	         1=1
+	        <if test="userId !=null and userId!=''">
+	            AND t.user_id=#{userId}
+	        </if>
+	        <if test="clinicCode !=null and clinicCode!=''">
+	            AND clinic_code=#{clinicCode}
+	        </if>
+	        <if test="pointType !=null and pointType!=''">
+	            AND point_type=#{pointType}
+	        </if>
+	        <if test="startDate !=null and startDate !=''">
+	        	<![CDATA[ 
+	            AND DATE_FORMAT(t.`point_time`,'%Y-%m-%d') >= #{startDate}
+	            ]]>
+	        </if>
+	        <if test="endDate !=null and endDate!=''">
+	        	<![CDATA[ 
+	            AND DATE_FORMAT(t.`point_time`,'%Y-%m-%d') <= #{endDate}
+	            ]]>
+	        </if>
+	    </where>
+	    order by t.`point_time` desc
+	</select>
+	<insert id="saveUserPointDetail">
+		insert into t_user_point_detail(behavior_id,rule_id,user_id,clinic_code,point_type,point_dimension,`point`,`desc`,point_time,create_time)
+		values(#{behaviorId}, #{ruleId},#{userId}, #{clinicCode},#{pointType}, #{pointDimension},#{point}, #{desc},#{pointTime},#{createTime})
+	</insert>
+	
+	
+	<select id="getPointRules" parameterType="String" resultMap="PointRule">
+	    SELECT * FROM t_rules t 
+	    <where>
+	         1=1
+	        <if test="areaCode !=null and areaCode!=''">
+	            AND t.area_code=#{areaCode}
+	        </if>
+	        <if test="clinicCode !=null and clinicCode!=''">
+	            AND clinic_code=#{clinicCode}
+	        </if>
+	        <if test="agentCode !=null and agentCode!=''">
+	            AND agent_code=#{agentCode}
+	        </if>
+	        <if test="behaviorCode !=null and behaviorCode !=''">
+	        	<![CDATA[ 
+	            AND behavior_code= #{behaviorCode}
+	            ]]>
+	        </if>
+	    </where>
+	    order by t.behavior_code,t.`create_time` desc
+	</select>
+	
+	<select id="getPointRuleById" parameterType="Integer" resultMap="PointRule">
+	    SELECT * FROM t_rules t WHERE id=#{id}
+	</select>
+	
+	<insert id="savePointRule" parameterType="com.myzh.dcp.model.point.entity.PointRule">
+		insert into t_rules(name,desc,area_code,agent_code,clinic_code,user_class,`user_type`,`behavior_code`,priority,exclusive,rule_mode,rule_message,rule_expression,value,max_value,scope,effective_time,expire_time,state,create_time,create_user,update_time,update_user)
+		values(#{name}, #{desc},#{areaCode}, #{agentCode},#{clinicCode}, #{userClass},#{userType}, #{behaviorCode},#{priority},#{exclusive},#{ruleMode},#{ruleMessage},#{ruleExpression},#{value},#{maxValue},#{scope},#{effectiveTime},#{expireTime},#{state},#{createTime},#{createUser},#{updateTime},#{updateUser})
+	</insert>
+	<update id="updatePointRule" parameterType="com.myzh.dcp.model.point.entity.PointRule">
+	    update t_rules r set 
+			r.name=#{name},
+			r.desc=#{desc},
+			r.area_code=#{areaCode},
+			r.agent_code=#{agentCode},
+			r.clinic_code=#{clinicCode},
+			r.user_class=#{userClass},
+			r.user_type=#{userType},
+			r.behavior_code=#{behaviorCode},
+			r.priority=#{priority},
+			r.exclusive=#{exclusive},
+			r.rule_mode=#{ruleMode},
+			r.rule_message=#{ruleMessage},
+			r.rule_expression=#{ruleExpression},
+			r.value=#{value},
+			r.max_value=#{maxValue},
+			r.effective_time=#{effectiveTime},
+			r.expire_time=#{expireTime},
+			r.state=#{state},
+			r.update_time=#{updateTime},
+			r.update_user=#{updateUser}
+		where r.id=#{id}
+	</update>
+	
+	<select id="getPointStatistics" parameterType="Integer" resultType="java.util.HashMap">
+		
+		    SELECT 
+			  CASE
+			    LEFT(d.`clinic_code`, 2) 
+			    WHEN '13' THEN '河北' 
+			    WHEN '41' THEN '河南' 
+			    WHEN '37' THEN '山东' 
+			    WHEN '81' THEN '香港' 
+			    WHEN '82' THEN '澳门' 
+			    ELSE '其他'
+			  END province,
+			  <if test="days gt 30">
+			  DATE_FORMAT(d.`point_time`, '%Y-%m') AS `date`,
+			  </if>
+			  <if test="days lte 30">
+			  DATE_FORMAT(d.`point_time`, '%Y-%m-%d') AS `date`,
+			  </if>
+			  SUM(d.`point`) AS `point` 
+			FROM
+			  `t_user_point_detail` d
+			<![CDATA[  
+				WHERE DATE_SUB(CURDATE(), INTERVAL #{days} DAY) <= DATE(d.`point_time`) 
+			]]>
+			<if test="days gt 30">
+	            GROUP BY LEFT(d.`clinic_code`, 2),
+			    		DATE_FORMAT(d.`point_time`, '%Y-%m') ;
+			</if>
+			<if test="days lte 30">
+			  	GROUP BY LEFT(d.`clinic_code`, 2),
+			  			DATE_FORMAT(d.`point_time`, '%Y-%m-%d') ;
+	        </if>
+	</select>
+</mapper>

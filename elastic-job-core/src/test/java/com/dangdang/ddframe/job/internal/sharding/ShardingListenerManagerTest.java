@@ -34,8 +34,7 @@ public final class ShardingListenerManagerTest extends AbstractBaseJobTest {
     
     @Before
     public void setUp() {
-        shardingListenerManager.listenShardingTotalCountChanged();
-        shardingListenerManager.listenServersChanged();
+        shardingListenerManager.start();
     }
     
     @Test

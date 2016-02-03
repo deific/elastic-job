@@ -21,27 +21,30 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 /**
  * 统计处理数据数量的类.
  * 
  * @author zhangliang
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ProcessCountStatistics {
     
+	private static ConcurrentMap<String, AtomicInteger> fetchDataCount = new ConcurrentHashMap<>();
+	
     private static ConcurrentMap<String, AtomicInteger> processSuccessCount = new ConcurrentHashMap<>();
     
     private static ConcurrentMap<String, AtomicInteger> processFailureCount = new ConcurrentHashMap<>();
-    
-    private ProcessCountStatistics() {
-    }
     
     /**
      * 增加本作业服务器处理数据正确的数量.
      * 
      * @param jobName 作业名称
      */
-    public static void incrementProcessSuccessCount(final String jobName) {
-        incrementProcessCount(jobName, processSuccessCount);
+    public static void incrementProcessSuccessCount(final String jobName, final int count) {
+        incrementProcessCount(jobName, processSuccessCount, count);
     }
     
     /**
@@ -49,13 +52,37 @@ public final class ProcessCountStatistics {
      * 
      * @param jobName 作业名称
      */
-    public static void incrementProcessFailureCount(final String jobName) {
-        incrementProcessCount(jobName, processFailureCount);
+    public static void incrementProcessFailureCount(final String jobName, final int count) {
+        incrementProcessCount(jobName, processFailureCount, count);
     }
     
-    private static void incrementProcessCount(final String jobName, final ConcurrentMap<String, AtomicInteger> processCountMap) {
+    /**
+     * 增加本作业服务器抓取数据错误的数量.
+     * 
+     * @param jobName 作业名称
+     */
+    public static void incrementFetchedDataCount(final String jobName, final int count) {
+    	incrementFetchCount(jobName, fetchDataCount, count);
+    }
+    
+    private static void incrementProcessCount(final String jobName, final ConcurrentMap<String, AtomicInteger> processCountMap, final int count) {
         processCountMap.putIfAbsent(jobName, new AtomicInteger(0));
-        processCountMap.get(jobName).incrementAndGet();
+        processCountMap.get(jobName).addAndGet(count);
+    }
+    
+    private static void incrementFetchCount(final String jobName, final ConcurrentMap<String, AtomicInteger> fetchCountMap, int count) {
+    	fetchCountMap.putIfAbsent(jobName, new AtomicInteger(0));
+    	fetchCountMap.get(jobName).addAndGet(count);
+    }
+    
+    /**
+     * 获取本作业服务器抓取数据正确的数量.
+     * 
+     * @param jobName 作业名称
+     * @return 本作业服务器处理数据正确的数量
+     */
+    public synchronized static int getFetchDataCountAndReset(final String jobName) {
+        return getCountAndReset(fetchDataCount, jobName);
     }
     
     /**
@@ -64,8 +91,8 @@ public final class ProcessCountStatistics {
      * @param jobName 作业名称
      * @return 本作业服务器处理数据正确的数量
      */
-    public static int getProcessSuccessCount(final String jobName) {
-        return null == processSuccessCount.get(jobName) ? 0 : processSuccessCount.get(jobName).get();
+    public static int getProcessSuccessCountAndReset(final String jobName) {
+    	return getCountAndReset(processSuccessCount, jobName);
     }
     
     /**
@@ -74,8 +101,24 @@ public final class ProcessCountStatistics {
      * @param jobName 作业名称
      * @return 本作业服务器处理数据错误的数量
      */
-    public static int getProcessFailureCount(final String jobName) {
-        return null == processFailureCount.get(jobName) ? 0 : processFailureCount.get(jobName).get();
+    public static int getProcessFailureCountAndReset(final String jobName) {
+    	return getCountAndReset(processFailureCount, jobName);
+    }
+    
+    /**
+     * 获取本作业服务器抓取数据正确的数量.
+     * 
+     * @param jobName 作业名称
+     * @return 本作业服务器处理数据正确的数量
+     */
+    public static int getCountAndReset(final ConcurrentMap<String, AtomicInteger> countMap, final String jobName) {
+    	AtomicInteger counter = countMap.get(jobName);
+    	int count = 0;
+    	if (null != counter) {
+    		count = counter.get();
+    		counter.set(0);
+    	}
+        return count;
     }
     
     /**
@@ -89,6 +132,9 @@ public final class ProcessCountStatistics {
         }
         if (processFailureCount.containsKey(jobName)) {
             processFailureCount.get(jobName).set(0);
+        }
+        if (fetchDataCount.containsKey(jobName)) {
+        	fetchDataCount.get(jobName).set(0);
         }
     }
 }

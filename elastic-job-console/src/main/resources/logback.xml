@@ -8,9 +8,6 @@
     <property name="log.error.log.level" value="WARN" />
     <property name="log.async.queue.size" value="1024" />
     
-    <include resource="includedLogbackConfig.xml" optional="true" />
-    <include resource="conf/includedLogbackConfig.xml" optional="true" />
-    
     <contextName>${log.context.name}</contextName>
     
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -50,9 +47,7 @@
     </appender>
     
     <root>
-        <level value="INFO" />
+        <level value="DEBUG" />
         <appender-ref ref="STDOUT" />
-        <appender-ref ref="ASYNC_FILE" />
-        <appender-ref ref="ERROR" />
     </root>
 </configuration>

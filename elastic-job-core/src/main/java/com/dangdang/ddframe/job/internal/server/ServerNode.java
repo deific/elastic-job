@@ -18,7 +18,6 @@
 package com.dangdang.ddframe.job.internal.server;
 
 import com.dangdang.ddframe.job.internal.env.JobNodeService;
-import com.dangdang.ddframe.job.internal.env.LocalJobNodeService;
 import com.dangdang.ddframe.job.internal.storage.JobNodePath;
 
 /**
@@ -46,6 +45,8 @@ public final class ServerNode {
     static final String PROCESS_SUCCESS_COUNT = ROOT + "/%s/processSuccessCount";
     
     static final String PROCESS_FAILURE_COUNT = ROOT + "/%s/processFailureCount";
+    
+    static final String FETCH_DATA_COUNT = ROOT + "/%s/fetchedDataCount";
     
     static final String STOPED = ROOT + "/%s/stoped";
     
@@ -76,6 +77,9 @@ public final class ServerNode {
     
     static String getProcessFailureCountNode(final String ip) {
         return String.format(PROCESS_FAILURE_COUNT, ip);
+    }
+    static String getFetchDataCountNode(final String ip) {
+        return String.format(FETCH_DATA_COUNT, ip);
     }
     
     static String getStopedNode(final String ip) {

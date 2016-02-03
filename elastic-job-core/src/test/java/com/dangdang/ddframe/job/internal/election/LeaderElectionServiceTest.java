@@ -24,10 +24,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.unitils.util.ReflectionUtils;
 
 import com.dangdang.ddframe.job.internal.AbstractBaseJobTest;
-import com.dangdang.ddframe.job.internal.env.FakeLocalHostService;
 import com.dangdang.ddframe.test.WaitingUtils;
 
 public final class LeaderElectionServiceTest extends AbstractBaseJobTest {
@@ -36,7 +34,6 @@ public final class LeaderElectionServiceTest extends AbstractBaseJobTest {
     
     @Before
     public void setUp() throws NoSuchFieldException {
-        ReflectionUtils.setFieldValue(leaderElectionService, "jobNodeService", new FakeLocalHostService("host0"));
     }
     
     @Test

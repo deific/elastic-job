@@ -58,11 +58,17 @@ public interface CoordinatorRegistryCenter extends RegistryCenter {
     void persistEphemeralSequential(String key);
     
     /**
+     * 添加本地缓存.
+     * 
+     * @param watcherPath 需加入缓存的路径
+     */
+    void addCacheData(String cachePath);
+    /**
      * 获取注册中心数据缓存对象.
      * 
      * @return 注册中心数据缓存对象
      */
-    Object getRawCache();
+    Object getRawCache(String cachePath);
     
     /**
      * 获取在主持中心注册的任务节点名称

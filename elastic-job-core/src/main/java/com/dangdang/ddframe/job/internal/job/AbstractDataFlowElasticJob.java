@@ -20,7 +20,10 @@ package com.dangdang.ddframe.job.internal.job;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import org.quartz.JobExecutionException;
+
 import com.dangdang.ddframe.job.api.DataFlowElasticJob;
+import com.dangdang.ddframe.job.exception.JobException;
 import com.dangdang.ddframe.job.internal.statistics.ProcessCountStatistics;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,36 +44,48 @@ public abstract class AbstractDataFlowElasticJob<T, C extends AbstractJobExecuti
     public final void updateOffset(final int item, final String offset) {
         getOffsetService().updateOffset(item, offset);
     }
+    protected List<T> fetchDataWithStatistics(final C shardingContext) {
+    	List<T> dataList = null;
+    	try {
+    		dataList = fetchData(shardingContext);
+    		ProcessCountStatistics.incrementFetchedDataCount(shardingContext.getJobName(), dataList == null?0:dataList.size());
+    	} catch (Exception e) {
+    		log.error("Elastic job:fetch data error，{}", e);
+    		throw new JobException(e);
+    	}
+    	return dataList;
+    }
     
+    @Override
+    public void handleJobExecutionException(final JobExecutionException jobExecutionException) throws JobExecutionException {
+        log.error("Elastic job: exception occur in job processing...", jobExecutionException.getCause());
+    }
     protected final void processDataWithStatistics(final C shardingContext, final List<T> data) {
-    	T lastSuccessData = null;
+    	Exception firstException = null;
+		T lastSuccessData = null;
     	try {
         	for (T each : data) {
                 boolean isSuccess = false;
-                try {
-                    isSuccess = processData(shardingContext, each);
-                // CHECKSTYLE:OFF
-                } catch (final Exception ex) {
-                // CHECKSTYLE:ON
-                    ProcessCountStatistics.incrementProcessFailureCount(shardingContext.getJobName());
-                    log.error("Elastic job: exception occur in job processing...", ex);
-                    continue;
-                }
+				isSuccess = processData(shardingContext, each);
+                
                 if (isSuccess) {
-                    ProcessCountStatistics.incrementProcessSuccessCount(shardingContext.getJobName());
+                    ProcessCountStatistics.incrementProcessSuccessCount(shardingContext.getJobName(), 1);
                     lastSuccessData = each;
                 } else {
-                    ProcessCountStatistics.incrementProcessFailureCount(shardingContext.getJobName());
+                    ProcessCountStatistics.incrementProcessFailureCount(shardingContext.getJobName(), 1);
                     break;
                 }
             }
             
     	} catch (Exception e) {
-    		e.printStackTrace();
-    		log.error("Elastic job:job processing error，{}", e);
-    	}
-    	// 更新偏移偏移量
-    	updateSharingItemDataOffset(shardingContext, lastSuccessData);
+			log.error("Elastic job:job processing error，{}", e);
+			ProcessCountStatistics.incrementProcessFailureCount(shardingContext.getJobName(), 1);
+    		throw new JobException(firstException);
+    		
+    	} finally {
+    		// 更新偏移偏移量
+    		updateSharingItemDataOffset(shardingContext, lastSuccessData);
+		}
     }
     /**
      * 更新分片作业偏移量

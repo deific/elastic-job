@@ -32,7 +32,7 @@ public final class ExecutionListenerManagerTest extends AbstractBaseJobTest {
     
     @Before
     public void setUp() {
-        executionListenerManager.listenMonitorExecutionChanged();
+        executionListenerManager.start();
     }
     
     @Test

@@ -26,8 +26,8 @@
 </table>
 <@dashboard.successDialog "success-dialog" />
 <@dashboard.failureDialog "connect-reg-center-failure-dialog" "连接失败，请检查注册中心配置" />
-<script src="lib/jquery/jquery-2.1.4.min.js"></script>
-<script src="lib/bootstrap/js/bootstrap.min.js"></script>
-<script src="js/common.js"></script>
-<script src="js/dashboard.js"></script>
-<script src="js/overview.js"></script>
+<script src="${base}/lib/jquery/jquery-2.1.4.min.js"></script>
+<script src="${base}/lib/bootstrap/js/bootstrap.min.js"></script>
+<script src="${base}/js/common.js"></script>
+<script src="${base}/js/dashboard.js"></script>
+<script src="${base}/js/overview.js"></script>

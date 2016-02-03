@@ -35,7 +35,7 @@ public final class ElectionListenerManagerTest extends AbstractBaseJobTest {
     
     @Before
     public void setUp() {
-        electionListenerManager.listenLeaderElection();
+        electionListenerManager.start();
     }
     
     @Test

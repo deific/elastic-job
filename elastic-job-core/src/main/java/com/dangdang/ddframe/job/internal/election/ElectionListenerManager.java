@@ -52,21 +52,19 @@ public final class ElectionListenerManager extends AbstractListenerManager {
     
     @Override
     public void start() {
-        listenLeaderElection();
+        addDataListener(new LeaderElectionJobListener());
     }
     
-    void listenLeaderElection() {
-        addDataListener(new AbstractJobListener() {
-            
-            @Override
-            protected void dataChanged(final CuratorFramework client, final TreeCacheEvent event, final String path) {
-                if (Type.NODE_REMOVED == event.getType() && electionNode.isLeaderHostPath(path) && !leaderElectionService.hasLeader()) {
-                    log.debug("Elastic job: leader crashed, elect a new leader now.");
-                    leaderElectionService.leaderElection();
-                    shardingService.setReshardingFlag();
-                    log.debug("Elastic job: leader election completed.");
-                }
+    class LeaderElectionJobListener extends AbstractJobListener {
+        
+        @Override
+        protected void dataChanged(final CuratorFramework client, final TreeCacheEvent event, final String path) {
+            if (electionNode.isLeaderHostPath(path) && Type.NODE_REMOVED == event.getType() && !leaderElectionService.hasLeader()) {
+                log.debug("Elastic job: leader crashed, elect a new leader now.");
+                leaderElectionService.leaderElection();
+                shardingService.setReshardingFlag();
+                log.debug("Elastic job: leader election completed.");
             }
-        });
+        }
     }
 }

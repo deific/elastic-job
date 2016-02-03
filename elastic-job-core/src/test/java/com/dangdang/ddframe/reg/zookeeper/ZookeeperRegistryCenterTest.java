@@ -224,7 +224,7 @@ public final class ZookeeperRegistryCenterTest {
     @Test
     public void getRawCache() {
         zkRegCenter.init();
-        assertThat(zkRegCenter.getRawCache(), instanceOf(TreeCache.class));
+        assertThat(zkRegCenter.getRawCache(""), instanceOf(TreeCache.class));
     }
     
     @Test

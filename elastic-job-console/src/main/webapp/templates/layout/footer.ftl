@@ -1,4 +1,4 @@
-<div class="footer">
+<div class="footer navbar navbar-default navbar-fixed-bottom">
     <div>Copyright © 2014 - 2015 <strong>MYZH DPC</strong>. All Rights Reserved</div>
 </div>
 
@@ -45,21 +45,21 @@
 </script>
 
 <!-- Mainly scripts -->
-<script src="assets/js/plugins/metisMenu/metisMenu.min.js"></script>
-<script src="assets/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="${base}/assets/js/plugins/metisMenu/metisMenu.min.js"></script>
+<script src="${base}/assets/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
 
-<script src="assets/js/inspinia.js"></script>
-<script src="assets/js/plugins/pace/pace.min.js"></script>
-<script src="assets/js/plugins/sweetalert/sweetalert.min.js"></script>
+<script src="${base}/assets/js/inspinia.js"></script>
+<script src="${base}/assets/js/plugins/pace/pace.min.js"></script>
+<script src="${base}/assets/js/plugins/sweetalert/sweetalert.min.js"></script>
 
 <!-- FooTable -->
-<script src="assets/js/plugins/footable/footable.all.min.js"></script>
-<script src="assets/js/plugins/pagination/jquery.twbsPagination.min.js"></script>
+<script src="${base}/assets/js/plugins/footable/footable.all.min.js"></script>
+<script src="${base}/assets/js/plugins/pagination/jquery.twbsPagination.min.js"></script>
 <!-- JS Template -->
-<script src="assets/js/plugins/artTemplate/template.js"></script>
-<script src="assets/js/plugins/datepicker/WdatePicker.js"></script>
+<script src="${base}/assets/js/plugins/artTemplate/template.js"></script>
+<script src="${base}/assets/js/plugins/datepicker/WdatePicker.js"></script>
 <!-- Autocomplete -->
-<script src="assets/js/plugins/typeahead/bootstrap3-typeahead.min.js"></script>
+<script src="${base}/assets/js/plugins/typeahead/bootstrap3-typeahead.min.js"></script>
 
-<script src="assets/js/plugins/select/bootstrap-select.min.js"></script>
-<script src="assets/js/lts.js"></script>
+<script src="${base}/assets/js/plugins/select/bootstrap-select.min.js"></script>
+<script src="${base}/assets/js/lts.js"></script>

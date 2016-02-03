@@ -49,7 +49,7 @@ public abstract class AbstractSequenceDataFlowElasticJob<T> extends AbstractData
     @Override
     protected final void executeJob(final JobExecutionMultipleShardingContext shardingContext) {
     	long startTime = System.currentTimeMillis();
-    	log.info("starting execute job:", shardingContext.getJobName());
+    	log.info("starting execute job:{}", shardingContext.getJobName());
         if (isStreamingProcess()) {
             executeStreamingJob(shardingContext);
         } else {
@@ -100,7 +100,7 @@ public abstract class AbstractSequenceDataFlowElasticJob<T> extends AbstractData
                 @Override
                 public void run() {
                     try {
-                        List<T> data = fetchData(shardingContext.createJobExecutionSingleShardingContext(each));
+                        List<T> data = fetchDataWithStatistics(shardingContext.createJobExecutionSingleShardingContext(each));
                         if (null != data && !data.isEmpty()) {
                             result.put(each, data);
                         }

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <description>apache shiro配置</description>
+    
+	<!-- 使用Shiro自带的JdbcRealm类,指定密码匹配所需要用到的加密对象,指定存储用户、角色、权限许可的数据源及相关查询语句  -->
+	<bean id="jdbcRealm" class="org.apache.shiro.realm.jdbc.JdbcRealm">
+		<!-- <property name="credentialsMatcher" ref="credentialsMatcher"></property>  --> 
+        <property name="permissionsLookupEnabled" value="true"></property>  
+        <property name="dataSource" ref="dataSource"></property>  
+        <property name="authenticationQuery"  
+            value="SELECT password FROM sys_user WHERE user_name = ?"></property>  
+        <property name="userRolesQuery"  
+            value="SELECT role FROM sys_user_role LEFT JOIN sys_role USING(id) LEFT JOIN sys_user USING(id) WHERE user_name  WHERE user_name = ?"></property>  
+        <property name="permissionsQuery"  
+            value="SELECT permission FROM sys_role_permission LEFT JOIN sys_role USING(id) LEFT JOIN sys_permission USING(id) WHERE role = ?"></property>  
+    </bean>
+	<!-- 权限验证器 -->
+	<bean id="securityRealm" class="com.myzh.dpc.console.sys.security.SecurityRealm"></bean>
+	<!-- 安全管理器 -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realms">
+            <list>
+                <ref bean="jdbcRealm"/>
+            </list>
+        </property>
+    </bean>
+    
+    <!-- Shiro主过滤器 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="loginUrl" value="/index"/>
+        <property name="successUrl" value="/main"/>
+        <property name="unauthorizedUrl" value="/index"/>
+        <property name="filterChainDefinitions">
+            <value>
+                <!-- 登录登出允许访问 -->
+                /index = anon
+                /login = anon
+                /logout = anon
+                <!-- 静态资源允许访问 -->
+                /assets/**  = anon 
+                <!-- 对外接口允许访问 -->
+                /api/** = anon
+				<!-- 其他资源需要认证-->
+                /** = authc 
+            </value>
+        </property>
+    </bean>
+    <!-- Shiro生命周期处理器 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+</beans>

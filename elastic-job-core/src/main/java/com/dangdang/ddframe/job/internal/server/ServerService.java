@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.dangdang.ddframe.job.api.JobConfiguration;
 import com.dangdang.ddframe.job.internal.election.LeaderElectionService;
 import com.dangdang.ddframe.job.internal.env.JobNodeService;
@@ -158,19 +160,33 @@ public final class ServerService {
      * 持久化统计处理数据成功的数量的数据.
      */
     public void persistProcessSuccessCount(final int processSuccessCount) {
-    	String node = ServerNode.getProcessSuccessCountNode(jobNodeService.getNodeName());
-    	String count = jobNodeStorage.getJobNodeData(node);
-    	count = (count == null || "".equals(count))?"0":count;
-        jobNodeStorage.replaceJobNode(node, processSuccessCount + Integer.valueOf(count));
+    	persistCount(ServerNode.getProcessSuccessCountNode(jobNodeService.getNodeName()), processSuccessCount);
     }
     
     /**
      * 持久化统计处理数据失败的数量的数据.
      */
     public void persistProcessFailureCount(final int processFailureCount) {
-    	String node = ServerNode.getProcessFailureCountNode(jobNodeService.getNodeName());
-    	String count = jobNodeStorage.getJobNodeData(node);
-    	count = (count == null || "".equals(count))?"0":count;
-        jobNodeStorage.replaceJobNode(node, processFailureCount + Integer.valueOf(count));
+    	persistCount(ServerNode.getProcessFailureCountNode(jobNodeService.getNodeName()), processFailureCount);
+    }
+    
+    /**
+     * 持久化统计抓取数据失败的数量的数据.
+     */
+    public void persistFetchDataCount(final int fetchDataCount) {
+    	persistCount(ServerNode.getFetchDataCountNode(jobNodeService.getNodeName()), fetchDataCount);
+    }
+    
+    /**
+     * 持久化累计数量数据
+     * @param countNodeName
+     * @param count
+     */
+    public void persistCount(String countNodeName, final int count) {
+    	String oldCount = jobNodeStorage.getJobNodeDataDirectly(countNodeName);
+    	if (StringUtils.isBlank(oldCount)) {
+    		oldCount = "0";
+    	}
+        jobNodeStorage.replaceJobNode(countNodeName, Integer.valueOf(oldCount) + count);
     }
 }

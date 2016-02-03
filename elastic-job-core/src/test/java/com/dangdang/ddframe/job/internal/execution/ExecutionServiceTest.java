@@ -49,7 +49,7 @@ public final class ExecutionServiceTest extends AbstractBaseJobTest {
     
     @Before
     public void setUp() {
-        JobRegistry.getInstance().addJob("testJob", new TestJobScheduler());
+        JobRegistry.getInstance().addJobScheduler("testJob", new TestJobScheduler());
     }
     
     @After
