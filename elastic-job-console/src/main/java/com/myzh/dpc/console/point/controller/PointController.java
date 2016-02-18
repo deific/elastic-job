@@ -30,6 +30,7 @@ import com.myzh.dpc.console.point.model.form.BaseForm;
 import com.myzh.dpc.console.point.model.form.point.GetUserPointDetailsForm;
 import com.myzh.dpc.console.point.model.form.point.PointForm;
 import com.myzh.dpc.console.point.model.form.point.SavePointForm;
+import com.myzh.dpc.console.point.model.form.point.StatisticsForm;
 import com.myzh.dpc.console.point.service.PointService;
 
 @Controller
@@ -76,9 +77,9 @@ public class PointController {
 	 */
 	@RequestMapping(value="doStatistics")
 	@ResponseBody
-	public ResponseEntity<?> doStatistics(Integer days, final ModelMap model) {
+	public ResponseEntity<?> doStatistics(StatisticsForm statisticsForm, final ModelMap model) {
 		ResponseWrapper rw = new ResponseWrapper();
-		Map<String, Object> statistics = pointService.getPointStatistics(days);
+		Map<String, Object> statistics = pointService.getPointStatistics(statisticsForm.getAreaCode(), statisticsForm.getClinicCode(), statisticsForm.getDays());
 		rw.setData(statistics);
 		return new ResponseEntity<ResponseWrapper>(rw, HttpStatus.OK);
 	}

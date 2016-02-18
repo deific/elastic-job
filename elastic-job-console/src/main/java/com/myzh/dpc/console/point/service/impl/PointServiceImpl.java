@@ -129,41 +129,41 @@ public class PointServiceImpl implements PointService {
 	}
 
 	@Override
-	public Map<String, Object> getPointStatistics(Integer days) {
+	public Map<String, Object> getPointStatistics(String areaCode, String clinicCode, Integer days) {
 		if (days == null) {
 			days = 7;
 		}
-		List<Map<String, Object>> statisticMaps = pointDao.getPointStatistics(days);
+		List<Map<String, Object>> statisticMaps = pointDao.getPointStatistics(areaCode, clinicCode, days);
 		Map<String, Object> statisticData = new HashMap<String, Object>();
 		if (statisticMaps != null && !statisticMaps.isEmpty()) {
 			List<String> categories = Lists.newArrayList();
 			List<Map<String, Object>> series = Lists.newArrayList();
 			
 			String date = null;
-			String province = null;
+			String name = null;
 			for (Map<String, Object> statisticMap: statisticMaps) {
 				date = (String)statisticMap.get("date");
 				if (!categories.contains(date)) {
 					categories.add(date);
 				}
-				province = (String)statisticMap.get("province");
-				province = StringUtils.trimToEmpty(province);
+				name = (String)statisticMap.get("name");
+				name = StringUtils.trimToEmpty(name);
 				
-				Map<String, Object> seriesMap = getSeriesMapByProvince(series, province);
+				Map<String, Object> seriesMap = getSeriesMapByProvince(series, name);
 				if (seriesMap == null) {
 					seriesMap = new HashMap<String, Object>();
 					Map<String, Object> itemMap = new HashMap<String, Object>();
-					itemMap.put("name", province);
+					itemMap.put("name", name);
 					itemMap.put("y", ((BigDecimal)statisticMap.get("point")).intValue());
 					itemMap.put("drilldown", true);
 					List<Map<String, Object>> data = Lists.newArrayList();
 					data.add(itemMap);
-					seriesMap.put("name", province);
+					seriesMap.put("name", name);
 					seriesMap.put("data", data);
 					series.add(seriesMap);
 				} else {
 					Map<String, Object> itemMap = new HashMap<String, Object>();
-					itemMap.put("name", province);
+					itemMap.put("name", name);
 					itemMap.put("y", ((BigDecimal)statisticMap.get("point")).intValue());
 					itemMap.put("drilldown", true);
 					((List<Map<String, Object>>)seriesMap.get("data")).add(itemMap);

@@ -136,6 +136,8 @@ public interface PointDao {
 	 * @return
 	 */
 	public List<Map<String, Object>> getPointStatistics(
-			@Param(value = "days")Integer days
+			@Param(value = "areaCode") String areaCode, 
+			@Param(value = "clinicCode")  String clinicCode,
+			@Param(value = "days") Integer days
 			);
 }

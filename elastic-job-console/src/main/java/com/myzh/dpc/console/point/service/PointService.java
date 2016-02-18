@@ -77,8 +77,10 @@ public interface PointService {
 
 	/**
 	 * 获取积分统计数据
+	 * @param areaCode
+	 * @param clinicCode
 	 * @param days
 	 * @return
 	 */
-	public Map<String, Object> getPointStatistics(Integer days);
+	public Map<String, Object> getPointStatistics(String areaCode, String clinicCode, Integer days);
 }

@@ -26,6 +26,7 @@
                     <li><a href="${base}/point/statistics">积分统计</a></li>
                 </ul>
             </li>
+            <!--
             <li>
                 <a href="#"><i class="fa fa-file-text-o"></i> <span class="nav-label">API</span><span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level collapse">
@@ -51,6 +52,7 @@
                     <li><a href="${base}/h2" target="_blank"><i class="fa fa-book"></i><span class="nav-label">数据字典</a></span></li>
                 </ul>
             </li>
+            -->
         </ul>
     </div>
 </nav>

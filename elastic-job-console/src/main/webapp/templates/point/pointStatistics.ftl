@@ -10,26 +10,27 @@
     </div>
 </div>
 <div class="wrapper wrapper-content animated fadeInRight">
-	<div class="form-group">
-		<div class="btn-group">
-		  <a href="javascript:showStatistics(7)" class="btn btn-default">7天内</a>
-		  <a href="javascript:showStatistics(30)" class="btn btn-default">30天内</a>
-		  <a href="javascript:showStatistics(365)" class="btn btn-default">1年内</a>
+	<form id="queryForm" class="form-horizontal" action="doStatistics">
+		<div class="form-group">
+			<div class="col-lg-8 btn-group">
+				  <a href="javascript:showStatistics(7)" class="btn btn-default">7天内</a>
+				  <a href="javascript:showStatistics(30)" class="btn btn-default">30天内</a>
+				  <a href="javascript:showStatistics(365)" class="btn btn-default">1年内</a>
+			</div>
+			<div class="col-lg-3">
+			    <div class="input-group">
+			      <div class="input-group-addon"><i class="fa fa-plus-square"></i></div>
+			      <input type="text" class="form-control" name="clinicCode" id="clinicCode" value="${clinicCode}" placeholder="请输入诊所编码">
+			    </div>
+	  		</div>
+	  		<div class="col-lg-1">
+			    <button type="button" class="btn btn-primary" onclick="showStatistics(null)">查询</button>
+	  		</div>
 		</div>
-		<div class="col-lg-8">
-			<form class="form-inline">
-  <div class="form-group">
-    <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
-    <div class="input-group">
-      <div class="input-group-addon"><i class="fa fa-plus-square"></i></div>
-      <input type="text" class="form-control" id="clinicCode" placeholder="请输入诊所编码">
-    </div>
-  </div>
-  <button type="submit" class="btn btn-primary">查询</button>
-</form>
-  		</div>
-	</div>
+	</form>
+	<div class="form-group">
     <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    </div>
 </div>
 
 <script>
@@ -38,11 +39,17 @@
     });
 
     function showStatistics(days) {
-    	$.getJSON('doStatistics?days=' + days, function (data) {
+    	if (days == null) {
+    		days = 7;
+    	}
+		var data = {};
+    	data.days=days;
+    	data.clinicCode=$("#clinicCode").val();
+    	$.getJSON('doStatistics', data, function (data) {
     		if (data.rtnCode == 0) {
     			highcharts(data.data.categories, data.data.series);
     			var chart = $('#container').highcharts();
-	    		chart.setTitle(null,  { text: days + "天内分省积分变化曲线" });
+	    		chart.setTitle(null,  { text: days + "天内积分变化曲线" });
     		}
     	});
     }
@@ -56,7 +63,7 @@
 	        	}
 	        },
 	        title: {
-	            text: '积分',
+	            text: '积分趋势变化图',
 	            x: -20 //center
 	        },
 	        subtitle: {
